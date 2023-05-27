@@ -5,6 +5,7 @@ go 1.19
 require github.com/labstack/echo/v4 v4.10.2
 
 require (
+	github.com/cockroachdb/apd/v3 v3.1.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -28,6 +29,7 @@ require (
 )
 
 require (
+	github.com/bojanz/currency v1.1.2
 	github.com/go-playground/validator/v10 v10.14.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/jackc/pgx/v5 v5.3.1

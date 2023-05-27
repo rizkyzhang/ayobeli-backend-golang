@@ -28,6 +28,7 @@ require (
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/gommon v0.4.0 // indirect
+	github.com/lucsky/cuid v1.2.1
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/sirupsen/logrus v1.9.2

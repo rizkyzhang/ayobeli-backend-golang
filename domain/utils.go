@@ -22,6 +22,11 @@ type Env struct {
 	RefreshTokenSecret     string `mapstructure:"REFRESH_TOKEN_SECRET"`
 }
 
+type AesEncryptUtil interface {
+	Encrypt(plaintext string) (string, error)
+	Decrypt(ciphertext string) (string, error)
+}
+
 type HashUtil interface {
 	HashPassword(password string) (string, error)
 	ValidatePassword(password, hash string) bool

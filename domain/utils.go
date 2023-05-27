@@ -22,6 +22,11 @@ type Env struct {
 	RefreshTokenSecret     string `mapstructure:"REFRESH_TOKEN_SECRET"`
 }
 
+type HashUtil interface {
+	HashPassword(password string) (string, error)
+	ValidatePassword(password, hash string) bool
+}
+
 type JWTAccessTokenClaims struct {
 	UserUID string `json:"user_uid"`
 	jwt.RegisteredClaims

@@ -13,7 +13,7 @@ type Application struct {
 
 func App() Application {
 	app := &Application{}
-	app.Env = utils.LoadConfig("../.env")
+	app.Env = utils.LoadConfig(".env")
 	app.DB = NewPostgresDB(app.Env)
 	return *app
 }

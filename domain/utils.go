@@ -43,3 +43,10 @@ type JWTUtil interface {
 	ParseUserUID(tokenString string, isAccessToken bool) (string, error)
 	Refresh(refreshToken string) (string, time.Time, error)
 }
+
+type Metadata struct {
+	UID       func() string
+	Slug      func(str string) string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}

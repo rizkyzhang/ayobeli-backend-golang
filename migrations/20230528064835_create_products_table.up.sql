@@ -1,0 +1,24 @@
+CREATE TYPE INVENTORY_STATUS 
+AS ENUM ('ACTIVE', 'INACTIVE');
+
+CREATE TABLE products (
+  id BIGSERIAL PRIMARY KEY,
+  uid TEXT NOT NULL,
+  name TEXT UNIQUE NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  sku TEXT UNIQUE,
+  description TEXT NOT NULL,
+  images JSONB NOT NULL,
+  weight TEXT NOT NULL,
+  weight_value NUMERIC(10, 2) NOT NULL,
+  base_price TEXT NOT NULL,
+  base_price_value INT NOT NULL,
+  offer_price TEXT NOT NULL,
+  offer_price_value INT NOT NULL,
+  discount SMALLINT NOT NULL,
+  stock INT NOT NULL,
+  status INVENTORY_STATUS NOT NULL,
+
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMPTZ NOT NULL
+);

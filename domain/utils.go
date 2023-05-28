@@ -50,3 +50,15 @@ type Metadata struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+type CalculatedPrice struct {
+	Base       string
+	Offer      string
+	OfferValue uint64
+}
+
+type ProductUtil interface {
+	CalculatePrice(baseValue uint64, discount uint8) (*CalculatedPrice, error)
+	FormatRupiah(value uint64) (string, error)
+	FormatWeight(weightInGram float64) string
+}

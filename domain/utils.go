@@ -62,3 +62,21 @@ type ProductUtil interface {
 	FormatRupiah(value uint64) (string, error)
 	FormatWeight(weightInGram float64) string
 }
+
+type CalculatedCart struct {
+	CartQuantity             uint64
+	CartTotalPriceValue      uint64
+	CartTotalPrice           string
+	CartTotalWeightValue     float64
+	CartTotalWeight          string
+	CartItemTotalPriceValue  uint64
+	CartItemTotalPrice       string
+	CartItemTotalWeightValue float64
+	CartItemTotalWeight      string
+}
+
+type CartUtil interface {
+	CalculateCreateCartItem(payload *CartUsecasePayloadCreateCartItem) (*CalculatedCart, error)
+	CalculateUpdateCartItem(payload *CartUsecasePayloadUpdateCartItem) (*CalculatedCart, error)
+	CalculateDeleteCartItem(payload *CartUsecasePayloadDeleteCartItem) (*CalculatedCart, error)
+}

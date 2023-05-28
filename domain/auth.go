@@ -16,7 +16,7 @@ type AuthController interface {
 	SignUp(c echo.Context) error
 	SignIn(c echo.Context) error
 	SignOut(c echo.Context) error
-	RefreshToken(c echo.Context) error
+	RefreshAccessToken(c echo.Context) error
 }
 
 type AuthControllerPayloadSignUp struct {
@@ -33,7 +33,7 @@ type AuthControllerPayloadSignIn struct {
 type AuthUsecase interface {
 	SignUp(email, password string) (accessToken, refreshToken string, accessTokenExpirationTime, refreshTokenExpirationTime time.Time, err error)
 	SignIn(email, password string) (accessToken, refreshToken string, accessTokenExpirationTime, refreshTokenExpirationTime time.Time, err error)
-	RefreshToken(refreshToken string) (string, time.Time, error)
+	RefreshAccessToken(refreshToken string) (string, time.Time, error)
 	GetUserByUID(UID string) (*UserModel, error)
 	GetAdminByUserID(UserID uint64) (*AdminModel, error)
 }

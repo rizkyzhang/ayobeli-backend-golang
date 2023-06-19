@@ -86,7 +86,7 @@ func (b *baseAuthUsecase) SignIn(email, password string) (accessToken, refreshTo
 
 	isPasswordCorrect := b.hashUtil.ValidatePassword(password, user.Password)
 	if !isPasswordCorrect {
-		return "", "", time.Time{}, time.Time{}, errors.New("invalid password")
+		return "", "", time.Time{}, time.Time{}, errors.New("wrong password")
 	}
 
 	accessToken, accessTokenExpirationTime, err = b.jwtUtil.GenerateAccessToken(user.UID)

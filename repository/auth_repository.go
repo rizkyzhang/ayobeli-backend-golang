@@ -50,7 +50,7 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 		TotalPriceValue:  0,
 		TotalWeight:      "Rp 0",
 		TotalWeightValue: 0,
-		UserID:           1,
+		UserID:           userID,
 		CreatedAt:        metadata.CreatedAt,
 		UpdatedAt:        metadata.UpdatedAt,
 	}

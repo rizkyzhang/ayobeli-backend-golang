@@ -6,6 +6,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o mocks/auth_usecase_mock.go --fake-name AuthUsecaseMock . AuthUsecase
+
 // Controller
 type AuthMiddleware interface {
 	ValidateUser() echo.MiddlewareFunc

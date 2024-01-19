@@ -57,11 +57,11 @@ func (b *baseCartUtil) CalculateUpdateCartItem(payload *domain.CartUsecasePayloa
 	}
 	cartItemTotalWeight := b.productUtil.FormatWeight(cartItemTotalWeightValue)
 
-	quantityDiff := int64(payload.Quantity) - int64(payload.CartItem.Quantity)
-	quantityDiffAbs := uint64(math.Abs(float64(quantityDiff)))
+	quantityDiff := payload.Quantity - payload.CartItem.Quantity
+	quantityDiffAbs := int(math.Abs(float64(quantityDiff)))
 	isQuantityIncreased := quantityDiff > 0
-	var cartQuantity uint64
-	var cartTotalPriceValue uint64
+	var cartQuantity int
+	var cartTotalPriceValue int
 	var cartTotalWeightValue float64
 
 	if isQuantityIncreased {

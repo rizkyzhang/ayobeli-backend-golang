@@ -23,7 +23,6 @@ func SetupTestDB(env *domain.Env) (*dockertest.Pool, *dockertest.Resource, *sqlx
 	if err != nil {
 		log.Fatalf("Could not construct pool: %s", err)
 	}
-
 	err = pool.Client.Ping()
 	if err != nil {
 		log.Fatalf("Could not connect to Docker: %s", err)
@@ -50,14 +49,13 @@ func SetupTestDB(env *domain.Env) (*dockertest.Pool, *dockertest.Resource, *sqlx
 
 	hostAndPort := resource.GetHostPort("5432/tcp")
 	databaseUrl := fmt.Sprintf(env.TestDBUrl, hostAndPort)
-
 	log.Println("Connecting to database on url: ", databaseUrl)
 
-	resource.Expire(120) // Tell docker to hard kill the container in 120 seconds
-
-	var db *sqlx.DB
+	// Tell docker to hard kill the container in 120 seconds
+	resource.Expire(120)
 
 	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
+	var db *sqlx.DB
 	pool.MaxWait = 120 * time.Second
 	if err = pool.Retry(func() error {
 		_db, err := sqlx.Open("pgx", databaseUrl)
@@ -71,12 +69,12 @@ func SetupTestDB(env *domain.Env) (*dockertest.Pool, *dockertest.Resource, *sqlx
 	}); err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
-
 	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Migrations
 	_, b, _, _ := runtime.Caller(0)
 	basePath := filepath.Join(filepath.Dir(b), "../../migrations")
 	migrationDir := filepath.Join("file://" + basePath)
@@ -87,7 +85,6 @@ func SetupTestDB(env *domain.Env) (*dockertest.Pool, *dockertest.Resource, *sqlx
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	err = m.Up()
 	if err != nil {
 		log.Fatal(err)

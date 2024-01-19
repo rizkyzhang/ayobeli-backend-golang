@@ -54,7 +54,7 @@ func (b *baseProductUsecase) Create(payload *domain.ProductUsecasePayloadCreateP
 	return UID, nil
 }
 
-func (b *baseProductUsecase) List(limit uint64, encryptedCursor, direction string) (*domain.ProductControllerResponseListProducts, error) {
+func (b *baseProductUsecase) List(limit int, encryptedCursor, direction string) (*domain.ProductControllerResponseListProducts, error) {
 	var paginationRes domain.ProductControllerResponseListProducts
 
 	var cursor int
@@ -69,7 +69,7 @@ func (b *baseProductUsecase) List(limit uint64, encryptedCursor, direction strin
 		}
 	}
 
-	_products, err := b.productRepository.List(limit, uint64(cursor), direction)
+	_products, err := b.productRepository.List(limit, cursor, direction)
 	if err != nil {
 		return nil, err
 	}

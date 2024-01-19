@@ -17,7 +17,7 @@ func NewAuthRepository(db *sqlx.DB) domain.AuthRepository {
 	return &baseAuthRepository{db: db}
 }
 
-func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloadCreateUser) (uint64, error) {
+func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloadCreateUser) (int, error) {
 	tx, err := b.db.Beginx()
 	if err != nil {
 		return 0, err
@@ -35,7 +35,7 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 		return 0, err
 	}
 
-	var userID uint64
+	var userID int
 	err = tx.Get(&userID, query, args...)
 	if err != nil {
 		return 0, err
@@ -101,7 +101,7 @@ func (b *baseAuthRepository) GetUserByUID(UID string) (*domain.UserModel, error)
 	return &user, nil
 }
 
-func (b *baseAuthRepository) GetAdminByUserID(userID uint64) (*domain.AdminModel, error) {
+func (b *baseAuthRepository) GetAdminByUserID(userID int) (*domain.AdminModel, error) {
 	var admin domain.AdminModel
 
 	err := b.db.Get(&admin, "SELECT * FROM admins WHERE user_id = $1;", userID)

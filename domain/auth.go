@@ -37,12 +37,12 @@ type AuthUsecase interface {
 	SignIn(email, password string) (accessToken, refreshToken string, accessTokenExpirationTime, refreshTokenExpirationTime time.Time, err error)
 	RefreshAccessToken(refreshToken string) (string, time.Time, error)
 	GetUserByUID(UID string) (*UserModel, error)
-	GetAdminByUserID(UserID uint64) (*AdminModel, error)
+	GetAdminByUserID(UserID int) (*AdminModel, error)
 }
 
 // Repository
 type UserModel struct {
-	ID           uint64 `db:"id" json:"id"`
+	ID           int    `db:"id" json:"id"`
 	UID          string `db:"uid" json:"uid"`
 	Email        string `db:"email" json:"email"`
 	Password     string `db:"password" json:"password"`
@@ -55,20 +55,20 @@ type UserModel struct {
 }
 
 type AdminModel struct {
-	ID     uint64 `db:"id" json:"id"`
+	ID     int    `db:"id" json:"id"`
 	UID    string `db:"uid" json:"uid"`
 	Email  string `db:"email" json:"email"`
-	UserID uint64 `db:"user_id" json:"user_id"`
+	UserID int    `db:"user_id" json:"user_id"`
 
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
 
 type AuthRepository interface {
-	CreateUser(userPayload *AuthRepositoryPayloadCreateUser) (uint64, error)
+	CreateUser(userPayload *AuthRepositoryPayloadCreateUser) (int, error)
 	GetUserByEmail(email string) (*UserModel, error)
 	GetUserByUID(UID string) (*UserModel, error)
-	GetAdminByUserID(UserID uint64) (*AdminModel, error)
+	GetAdminByUserID(UserID int) (*AdminModel, error)
 }
 
 type AuthRepositoryPayloadCreateUser struct {

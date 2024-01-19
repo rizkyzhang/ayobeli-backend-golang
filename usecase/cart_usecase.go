@@ -17,7 +17,7 @@ func NewCartUsecase(cartRepository domain.CartRepository, cartUtil domain.CartUt
 	return &baseCartUsecase{cartRepository: cartRepository, cartUtil: cartUtil}
 }
 
-func (b *baseCartUsecase) GetCartByUserID(userID uint64) (*domain.CartControllerResponseGetCart, error) {
+func (b *baseCartUsecase) GetCartByUserID(userID int) (*domain.CartControllerResponseGetCart, error) {
 	var res domain.CartControllerResponseGetCart
 	cart, err := b.cartRepository.GetCartByUserID(userID)
 	if err != nil {
@@ -35,7 +35,7 @@ func (b *baseCartUsecase) GetCartByUserID(userID uint64) (*domain.CartController
 	return &res, nil
 }
 
-func (b *baseCartUsecase) GetCartByUserIDMiddleware(userID uint64) (*domain.CartModel, error) {
+func (b *baseCartUsecase) GetCartByUserIDMiddleware(userID int) (*domain.CartModel, error) {
 	cart, err := b.cartRepository.GetCartByUserID(userID)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func (b *baseCartUsecase) GetCartItemByUID(UID string) (*domain.CartItemModel, e
 	return cartItem, nil
 }
 
-func (b *baseCartUsecase) GetCartItemByProductID(productID uint64) (*domain.CartItemModel, error) {
+func (b *baseCartUsecase) GetCartItemByProductID(productID int) (*domain.CartItemModel, error) {
 	cartItem, err := b.cartRepository.GetCartItemByProductID(productID)
 	if err != nil {
 		return nil, err

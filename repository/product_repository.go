@@ -32,7 +32,7 @@ func (b *baseProductRepository) Create(productPayload *domain.ProductRepositoryP
 	return productPayload.UID, nil
 }
 
-func (b *baseProductRepository) List(limit, cursor uint64, direction string) ([]*domain.ProductModel, error) {
+func (b *baseProductRepository) List(limit, cursor int, direction string) ([]*domain.ProductModel, error) {
 	var products []*domain.ProductModel
 
 	if direction == "" {

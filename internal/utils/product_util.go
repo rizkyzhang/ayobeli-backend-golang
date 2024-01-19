@@ -13,7 +13,7 @@ func NewProductUtil() domain.ProductUtil {
 	return &baseProductUtil{}
 }
 
-func (b *baseProductUtil) FormatRupiah(value uint64) (string, error) {
+func (b *baseProductUtil) FormatRupiah(value int) (string, error) {
 	amount, err := currency.NewAmount(fmt.Sprint(value), "IDR")
 	if err != nil {
 		return "", err
@@ -25,18 +25,18 @@ func (b *baseProductUtil) FormatRupiah(value uint64) (string, error) {
 	return formatter.Format(amount), nil
 }
 
-func (b *baseProductUtil) CalculatePrice(baseValue uint64, discount uint8) (*domain.CalculatedPrice, error) {
-	base, err := b.FormatRupiah(uint64(baseValue))
+func (b *baseProductUtil) CalculatePrice(baseValue, discount int) (*domain.CalculatedPrice, error) {
+	base, err := b.FormatRupiah(baseValue)
 	if err != nil {
 		return nil, err
 	}
 
 	offerValue := baseValue
 	if discount > 0 {
-		discountValue := float32(discount) / float32(100)
-		offerValue = baseValue - uint64(float32(baseValue)*discountValue)
+		discountValue := float64(discount) / float64(100)
+		offerValue = baseValue - int(float64(baseValue)*discountValue)
 	}
-	offer, err := b.FormatRupiah(uint64(offerValue))
+	offer, err := b.FormatRupiah(offerValue)
 	if err != nil {
 		return nil, err
 	}

@@ -40,10 +40,10 @@ func (s *ProductUsecaseSuite) BeforeTest(suiteName, testName string) {
 			name := fmt.Sprintf("Product Test %d", i)
 			weightValue := gofakeit.Float64Range(100.0, 100_000.0)
 			weight := s.productUtil.FormatWeight(weightValue)
-			basePriceValue := uint64(gofakeit.UintRange(5000, 1_000_000))
-			discount := uint8(gofakeit.UintRange(0, 100))
-			stock := uint64(gofakeit.UintRange(0, 100))
-			computedPrice, _ := s.productUtil.CalculatePrice(uint64(basePriceValue), discount)
+			basePriceValue := gofakeit.IntRange(5000, 1_000_000)
+			discount := gofakeit.IntRange(0, 100)
+			stock := gofakeit.IntRange(0, 100)
+			computedPrice, _ := s.productUtil.CalculatePrice(basePriceValue, discount)
 			sku := gofakeit.LoremIpsumWord() + fmt.Sprint(i)
 
 			payload := &domain.ProductRepositoryPayloadCreateProduct{

@@ -9,10 +9,10 @@ import (
 )
 
 type AuthUsecaseMock struct {
-	GetAdminByUserIDStub        func(uint64) (*domain.AdminModel, error)
+	GetAdminByUserIDStub        func(int) (*domain.AdminModel, error)
 	getAdminByUserIDMutex       sync.RWMutex
 	getAdminByUserIDArgsForCall []struct {
-		arg1 uint64
+		arg1 int
 	}
 	getAdminByUserIDReturns struct {
 		result1 *domain.AdminModel
@@ -94,11 +94,11 @@ type AuthUsecaseMock struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *AuthUsecaseMock) GetAdminByUserID(arg1 uint64) (*domain.AdminModel, error) {
+func (fake *AuthUsecaseMock) GetAdminByUserID(arg1 int) (*domain.AdminModel, error) {
 	fake.getAdminByUserIDMutex.Lock()
 	ret, specificReturn := fake.getAdminByUserIDReturnsOnCall[len(fake.getAdminByUserIDArgsForCall)]
 	fake.getAdminByUserIDArgsForCall = append(fake.getAdminByUserIDArgsForCall, struct {
-		arg1 uint64
+		arg1 int
 	}{arg1})
 	stub := fake.GetAdminByUserIDStub
 	fakeReturns := fake.getAdminByUserIDReturns
@@ -119,13 +119,13 @@ func (fake *AuthUsecaseMock) GetAdminByUserIDCallCount() int {
 	return len(fake.getAdminByUserIDArgsForCall)
 }
 
-func (fake *AuthUsecaseMock) GetAdminByUserIDCalls(stub func(uint64) (*domain.AdminModel, error)) {
+func (fake *AuthUsecaseMock) GetAdminByUserIDCalls(stub func(int) (*domain.AdminModel, error)) {
 	fake.getAdminByUserIDMutex.Lock()
 	defer fake.getAdminByUserIDMutex.Unlock()
 	fake.GetAdminByUserIDStub = stub
 }
 
-func (fake *AuthUsecaseMock) GetAdminByUserIDArgsForCall(i int) uint64 {
+func (fake *AuthUsecaseMock) GetAdminByUserIDArgsForCall(i int) int {
 	fake.getAdminByUserIDMutex.RLock()
 	defer fake.getAdminByUserIDMutex.RUnlock()
 	argsForCall := fake.getAdminByUserIDArgsForCall[i]

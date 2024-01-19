@@ -34,9 +34,9 @@ type ProductControllerPayloadCreateProduct struct {
 	Description    string      `json:"description" validate:"required, min=30"`
 	Images         StringSlice `json:"images" validate:"required, min=1"`
 	WeightValue    float64     `json:"weight_value" validate:"required, min=100"`
-	BasePriceValue uint64      `json:"base_price_value" validate:"required, min=5000"`
-	Discount       *uint8      `json:"discount" validate:"required, max=100"`
-	Stock          *uint64     `json:"stock" validate:"required"`
+	BasePriceValue int         `json:"base_price_value" validate:"required, min=5000"`
+	Discount       *int        `json:"discount" validate:"required, max=100"`
+	Stock          *int        `json:"stock" validate:"required"`
 	Status         string      `json:"status" validate:"required, oneof=ACTIVE INACTIVE"`
 }
 
@@ -46,9 +46,9 @@ type ProductControllerPayloadUpdateProduct struct {
 	Description    string      `json:"description" validate:"required, min=30"`
 	Images         StringSlice `json:"images" validate:"required, min=1"`
 	WeightValue    float64     `json:"weight_value" validate:"required, min=100"`
-	BasePriceValue uint64      `json:"base_price_value" validate:"required, min=5000"`
-	Discount       *uint8      `json:"discount" validate:"required, max=100"`
-	Stock          *uint64     `json:"stock" validate:"required"`
+	BasePriceValue int         `json:"base_price_value" validate:"required, min=5000"`
+	Discount       *int        `json:"discount" validate:"required, max=100"`
+	Stock          *int        `json:"stock" validate:"required"`
 	Status         string      `json:"status" validate:"required, oneof=ACTIVE INACTIVE"`
 }
 
@@ -62,11 +62,11 @@ type ProductControllerResponseGetProductByUID struct {
 	Weight          string      `json:"weight"`
 	WeightValue     float64     `json:"weight_value"`
 	BasePrice       string      `json:"base_price"`
-	BasePriceValue  uint64      `json:"base_price_value"`
+	BasePriceValue  int         `json:"base_price_value"`
 	OfferPrice      string      `json:"offer_price"`
-	OfferPriceValue uint64      `json:"offer_price_value"`
-	Discount        uint8       `json:"discount"`
-	Stock           uint64      `json:"stock"`
+	OfferPriceValue int         `json:"offer_price_value"`
+	Discount        int         `json:"discount"`
+	Stock           int         `json:"stock"`
 	Status          string      `json:"status"`
 
 	CreatedAt time.Time `json:"created_at"`
@@ -76,7 +76,7 @@ type ProductControllerResponseGetProductByUID struct {
 type ProductControllerResponseListProducts struct {
 	Products    []*ProductControllerResponseGetProductByUID
 	IsFirstPage bool
-	Limit       uint64
+	Limit       int
 	PrevCursor  string
 	NextCursor  string
 }
@@ -84,7 +84,7 @@ type ProductControllerResponseListProducts struct {
 // Usecase
 type ProductUsecase interface {
 	Create(payload *ProductUsecasePayloadCreateProduct) (string, error)
-	List(limit uint64, encryptedCursor, direction string) (*ProductControllerResponseListProducts, error)
+	List(limit int, encryptedCursor, direction string) (*ProductControllerResponseListProducts, error)
 	GetByUID(UID string) (*ProductControllerResponseGetProductByUID, error)
 	UpdateByUID(UID string, payload *ProductUsecasePayloadUpdateProduct) error
 	DeleteByUID(UID string) error
@@ -96,9 +96,9 @@ type ProductUsecasePayloadCreateProduct struct {
 	Description    string      `json:"description"`
 	Images         StringSlice `json:"images"`
 	WeightValue    float64     `json:"weight_value"`
-	BasePriceValue uint64      `json:"base_price_value"`
-	Discount       uint8       `json:"discount"`
-	Stock          uint64      `json:"stock"`
+	BasePriceValue int         `json:"base_price_value"`
+	Discount       int         `json:"discount"`
+	Stock          int         `json:"stock"`
 	Status         string      `json:"status"`
 }
 
@@ -108,15 +108,15 @@ type ProductUsecasePayloadUpdateProduct struct {
 	Description    string      `json:"description"`
 	Images         StringSlice `json:"images"`
 	WeightValue    float64     `json:"weight_value"`
-	BasePriceValue uint64      `json:"base_price_value"`
-	Discount       uint8       `json:"discount"`
-	Stock          uint64      `json:"stock"`
+	BasePriceValue int         `json:"base_price_value"`
+	Discount       int         `json:"discount"`
+	Stock          int         `json:"stock"`
 	Status         string      `json:"status"`
 }
 
 // Repository
 type ProductModel struct {
-	ID              uint64         `db:"id" json:"id"`
+	ID              int            `db:"id" json:"id"`
 	UID             string         `db:"uid" json:"uid"`
 	Name            string         `db:"name" json:"name"`
 	Slug            string         `db:"slug" json:"slug"`
@@ -126,11 +126,11 @@ type ProductModel struct {
 	Weight          string         `db:"weight" json:"weight"`
 	WeightValue     float64        `db:"weight_value" json:"weight_value"`
 	BasePrice       string         `db:"base_price" json:"base_price"`
-	BasePriceValue  uint64         `db:"base_price_value" json:"base_price_value"`
+	BasePriceValue  int            `db:"base_price_value" json:"base_price_value"`
 	OfferPrice      string         `db:"offer_price" json:"offer_price"`
-	OfferPriceValue uint64         `db:"offer_price_value" json:"offer_price_value"`
-	Discount        uint8          `db:"discount" json:"discount"`
-	Stock           uint64         `db:"stock" json:"stock"`
+	OfferPriceValue int            `db:"offer_price_value" json:"offer_price_value"`
+	Discount        int            `db:"discount" json:"discount"`
+	Stock           int            `db:"stock" json:"stock"`
 	Status          string         `db:"status" json:"status"`
 
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
@@ -139,7 +139,7 @@ type ProductModel struct {
 
 type ProductRepository interface {
 	Create(productPayload *ProductRepositoryPayloadCreateProduct) (string, error)
-	List(limit, cursor uint64, direction string) ([]*ProductModel, error)
+	List(limit, cursor int, direction string) ([]*ProductModel, error)
 	GetByUID(UID string) (*ProductModel, error)
 	UpdateByUID(productPayload *ProductRepositoryPayloadUpdateProduct) error
 	DeleteByUID(UID string) error
@@ -155,11 +155,11 @@ type ProductRepositoryPayloadCreateProduct struct {
 	Weight          string      `db:"weight" json:"weight"`
 	WeightValue     float64     `db:"weight_value" json:"weight_value"`
 	BasePrice       string      `db:"base_price" json:"base_price"`
-	BasePriceValue  uint64      `db:"base_price_value" json:"base_price_value"`
+	BasePriceValue  int         `db:"base_price_value" json:"base_price_value"`
 	OfferPrice      string      `db:"offer_price" json:"offer_price"`
-	OfferPriceValue uint64      `db:"offer_price_value" json:"offer_price_value"`
-	Discount        uint8       `db:"discount" json:"discount"`
-	Stock           uint64      `db:"stock" json:"stock"`
+	OfferPriceValue int         `db:"offer_price_value" json:"offer_price_value"`
+	Discount        int         `db:"discount" json:"discount"`
+	Stock           int         `db:"stock" json:"stock"`
 	Status          string      `db:"status" json:"status"`
 
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
@@ -176,11 +176,11 @@ type ProductRepositoryPayloadUpdateProduct struct {
 	Weight          string      `db:"weight" json:"weight"`
 	WeightValue     float64     `db:"weight_value" json:"weight_value"`
 	BasePrice       string      `db:"base_price" json:"base_price"`
-	BasePriceValue  uint64      `db:"base_price_value" json:"base_price_value"`
+	BasePriceValue  int         `db:"base_price_value" json:"base_price_value"`
 	OfferPrice      string      `db:"offer_price" json:"offer_price"`
-	OfferPriceValue uint64      `db:"offer_price_value" json:"offer_price_value"`
-	Discount        uint8       `db:"discount" json:"discount"`
-	Stock           uint64      `db:"stock" json:"stock"`
+	OfferPriceValue int         `db:"offer_price_value" json:"offer_price_value"`
+	Discount        int         `db:"discount" json:"discount"`
+	Stock           int         `db:"stock" json:"stock"`
 	Status          string      `db:"status" json:"status"`
 
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`

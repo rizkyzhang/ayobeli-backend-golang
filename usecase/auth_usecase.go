@@ -27,7 +27,7 @@ func (b *baseAuthUsecase) GetUserByUID(UID string) (*domain.UserModel, error) {
 	return user, nil
 }
 
-func (b *baseAuthUsecase) GetAdminByUserID(userID uint64) (*domain.AdminModel, error) {
+func (b *baseAuthUsecase) GetAdminByUserID(userID int) (*domain.AdminModel, error) {
 	admin, err := b.authRepository.GetAdminByUserID(userID)
 	if err != nil {
 		return nil, err

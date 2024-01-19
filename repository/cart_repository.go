@@ -96,7 +96,7 @@ func (b *baseCartRepository) GetCartByUID(UID string) (*domain.CartModel, error)
 	return &cart, nil
 }
 
-func (b *baseCartRepository) GetCartByUserID(userID uint64) (*domain.CartModel, error) {
+func (b *baseCartRepository) GetCartByUserID(userID int) (*domain.CartModel, error) {
 	tx, err := b.db.Beginx()
 	if err != nil {
 		return nil, err
@@ -271,7 +271,7 @@ func (b *baseCartRepository) GetCartItemByUID(UID string) (*domain.CartItemModel
 	return &cartItem, nil
 }
 
-func (b *baseCartRepository) GetCartItemByProductID(productID uint64) (*domain.CartItemModel, error) {
+func (b *baseCartRepository) GetCartItemByProductID(productID int) (*domain.CartItemModel, error) {
 	var cartItem domain.CartItemModel
 
 	err := b.db.Get(&cartItem, "SELECT * FROM cart_items WHERE product_id = $1", productID)

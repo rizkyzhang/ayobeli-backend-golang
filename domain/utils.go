@@ -54,22 +54,22 @@ type Metadata struct {
 type CalculatedPrice struct {
 	Base       string
 	Offer      string
-	OfferValue uint64
+	OfferValue int
 }
 
 type ProductUtil interface {
-	CalculatePrice(baseValue uint64, discount uint8) (*CalculatedPrice, error)
-	FormatRupiah(value uint64) (string, error)
+	CalculatePrice(baseValue int, discount int) (*CalculatedPrice, error)
+	FormatRupiah(value int) (string, error)
 	FormatWeight(weightInGram float64) string
 }
 
 type CalculatedCart struct {
-	CartQuantity             uint64
-	CartTotalPriceValue      uint64
+	CartQuantity             int
+	CartTotalPriceValue      int
 	CartTotalPrice           string
 	CartTotalWeightValue     float64
 	CartTotalWeight          string
-	CartItemTotalPriceValue  uint64
+	CartItemTotalPriceValue  int
 	CartItemTotalPrice       string
 	CartItemTotalWeightValue float64
 	CartItemTotalWeight      string

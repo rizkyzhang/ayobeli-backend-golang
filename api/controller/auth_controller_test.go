@@ -11,11 +11,11 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"github.com/rizkyzhang/ayobeli-backend/api/controller"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
-	"github.com/rizkyzhang/ayobeli-backend/domain/mocks"
-	"github.com/rizkyzhang/ayobeli-backend/internal/utils"
-	"github.com/rizkyzhang/ayobeli-backend/internal/utils/response_util"
+	"github.com/rizkyzhang/ayobeli-backend-golang/api/controller"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain/mocks"
+	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
+	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils/response_util"
 	"github.com/stretchr/testify/suite"
 )
 

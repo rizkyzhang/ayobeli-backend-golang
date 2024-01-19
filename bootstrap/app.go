@@ -3,8 +3,8 @@ package bootstrap
 import (
 	"firebase.google.com/go/v4/auth"
 	"github.com/jmoiron/sqlx"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
-	"github.com/rizkyzhang/ayobeli-backend/internal/utils"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
 )
 
 type Application struct {

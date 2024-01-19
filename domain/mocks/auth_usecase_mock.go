@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rizkyzhang/ayobeli-backend/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
 type AuthUsecaseMock struct {

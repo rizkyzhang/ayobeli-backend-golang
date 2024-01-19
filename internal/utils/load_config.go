@@ -3,7 +3,7 @@ package utils
 import (
 	"log"
 
-	"github.com/rizkyzhang/ayobeli-backend/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 	"github.com/spf13/viper"
 )
 

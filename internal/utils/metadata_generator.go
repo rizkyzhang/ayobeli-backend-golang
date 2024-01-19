@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/lucsky/cuid"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
 func GenerateMetadata() domain.Metadata {

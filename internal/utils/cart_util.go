@@ -3,7 +3,7 @@ package utils
 import (
 	"math"
 
-	"github.com/rizkyzhang/ayobeli-backend/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
 type baseCartUtil struct {

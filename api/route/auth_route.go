@@ -4,8 +4,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
-	"github.com/rizkyzhang/ayobeli-backend/api/controller"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/api/controller"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
 func NewAuthRouter(env *domain.Env, db *sqlx.DB, rootGroup *echo.Group, authUsecase domain.AuthUsecase, authMiddleware domain.AuthMiddleware, validate *validator.Validate) {

@@ -1,4 +1,4 @@
-module github.com/rizkyzhang/ayobeli-backend
+module github.com/rizkyzhang/ayobeli-backend-golang
 
 go 1.19
 

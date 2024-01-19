@@ -4,8 +4,8 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	route "github.com/rizkyzhang/ayobeli-backend/api/route"
-	"github.com/rizkyzhang/ayobeli-backend/bootstrap"
+	route "github.com/rizkyzhang/ayobeli-backend-golang/api/route"
+	"github.com/rizkyzhang/ayobeli-backend-golang/bootstrap"
 	"github.com/sirupsen/logrus"
 )
 

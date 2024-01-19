@@ -6,11 +6,11 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 
-	"github.com/rizkyzhang/ayobeli-backend/api/middleware"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
-	"github.com/rizkyzhang/ayobeli-backend/internal/utils"
-	"github.com/rizkyzhang/ayobeli-backend/repository"
-	"github.com/rizkyzhang/ayobeli-backend/usecase"
+	"github.com/rizkyzhang/ayobeli-backend-golang/api/middleware"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
+	"github.com/rizkyzhang/ayobeli-backend-golang/repository"
+	"github.com/rizkyzhang/ayobeli-backend-golang/usecase"
 )
 
 func Setup(env *domain.Env, db *sqlx.DB, firebaseAuth *auth.Client, e *echo.Echo) {

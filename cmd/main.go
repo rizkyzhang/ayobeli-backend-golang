@@ -13,6 +13,7 @@ func main() {
 	app := bootstrap.App()
 	env := app.Env
 	db := app.DB
+	firebaseAuth := app.FirebaseAuth
 	defer app.CloseDBConnection()
 
 	if env.AppEnv != "prod" {
@@ -43,7 +44,7 @@ func main() {
 		},
 	}))
 
-	route.Setup(env, db, e)
+	route.Setup(env, db, firebaseAuth, e)
 
 	e.Logger.Fatal(e.Start(env.ServerAddress))
 }

@@ -2,43 +2,39 @@ package middleware
 
 import (
 	"errors"
-	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
-	"github.com/rizkyzhang/ayobeli-backend/internal/utils/response_util"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils/response_util"
 )
 
 type baseAuthMiddleware struct {
 	authUsecase domain.AuthUsecase
-	jwtUtil     domain.JWTUtil
+	authUtil    domain.AuthUtil
 }
 
-func NewAuthMiddleware(authUsecase domain.AuthUsecase, jwtUtil domain.JWTUtil) domain.AuthMiddleware {
+func NewAuthMiddleware(authUsecase domain.AuthUsecase, authUtil domain.AuthUtil) domain.AuthMiddleware {
 	return &baseAuthMiddleware{
 		authUsecase: authUsecase,
-		jwtUtil:     jwtUtil,
+		authUtil:    authUtil,
 	}
 }
 
 func (b *baseAuthMiddleware) ValidateUser() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			cookieToken, err := c.Cookie("access_token")
-			if err != nil {
-				if errors.Is(err, http.ErrNoCookie) {
-					return response_util.FromForbiddenError(errors.New("access token not found")).WithEcho(c)
-				}
-
+			bearerToken := c.Request().Header.Get("authorization")
+			if !strings.HasPrefix(bearerToken, "Bearer ") {
 				return response_util.FromForbiddenError(errors.New("invalid access token")).WithEcho(c)
 			}
-			accessToken := cookieToken.Value
 
-			userUID, err := b.jwtUtil.ParseUserUID(accessToken, true)
+			token := strings.Split(bearerToken, " ")[1]
+			firebaseUID, err := b.authUtil.VerifyToken(token)
 			if err != nil {
 				return response_util.FromForbiddenError(err).WithEcho(c)
 			}
-			user, err := b.authUsecase.GetUserByUID(userUID)
+			user, err := b.authUsecase.GetUserByFirebaseUID(firebaseUID)
 			if user == nil {
 				return response_util.FromForbiddenError(errors.New("access denied")).WithEcho(c)
 			}

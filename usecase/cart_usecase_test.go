@@ -12,10 +12,10 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/ory/dockertest/v3"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
-	"github.com/rizkyzhang/ayobeli-backend/internal/utils"
-	"github.com/rizkyzhang/ayobeli-backend/repository"
-	"github.com/rizkyzhang/ayobeli-backend/usecase"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
+	"github.com/rizkyzhang/ayobeli-backend-golang/repository"
+	"github.com/rizkyzhang/ayobeli-backend-golang/usecase"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -43,7 +43,6 @@ func (s *CartUsecaseSuite) BeforeTest(suiteName, testName string) {
 	ID, err := s.authRepo.CreateUser(&domain.AuthRepositoryPayloadCreateUser{
 		UID:          metadata.UID(),
 		Email:        gofakeit.Email(),
-		Password:     gofakeit.Password(true, true, true, true, false, 8),
 		Name:         gofakeit.Name(),
 		Phone:        gofakeit.Phone(),
 		ProfileImage: gofakeit.ImageURL(100, 100),

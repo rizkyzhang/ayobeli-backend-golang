@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bojanz/currency"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
 type baseProductUtil struct{}

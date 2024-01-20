@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/rizkyzhang/ayobeli-backend/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 

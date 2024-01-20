@@ -4,8 +4,8 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	route "github.com/rizkyzhang/ayobeli-backend/api/route"
-	"github.com/rizkyzhang/ayobeli-backend/bootstrap"
+	route "github.com/rizkyzhang/ayobeli-backend-golang/api/route"
+	"github.com/rizkyzhang/ayobeli-backend-golang/bootstrap"
 	"github.com/sirupsen/logrus"
 )
 
@@ -13,6 +13,7 @@ func main() {
 	app := bootstrap.App()
 	env := app.Env
 	db := app.DB
+	firebaseAuth := app.FirebaseAuth
 	defer app.CloseDBConnection()
 
 	if env.AppEnv != "prod" {
@@ -43,7 +44,7 @@ func main() {
 		},
 	}))
 
-	route.Setup(env, db, e)
+	route.Setup(env, db, firebaseAuth, e)
 
 	e.Logger.Fatal(e.Start(env.ServerAddress))
 }

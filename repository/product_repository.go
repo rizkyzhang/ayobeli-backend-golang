@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
 type baseProductRepository struct {

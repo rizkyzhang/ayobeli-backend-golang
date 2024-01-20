@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/jinzhu/copier"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
-	"github.com/rizkyzhang/ayobeli-backend/internal/utils"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
 )
 
 type baseProductUsecase struct {

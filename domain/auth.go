@@ -15,10 +15,8 @@ type AuthMiddleware interface {
 }
 
 type AuthController interface {
+	GetAccessToken(c echo.Context) error
 	SignUp(c echo.Context) error
-	SignIn(c echo.Context) error
-	SignOut(c echo.Context) error
-	RefreshAccessToken(c echo.Context) error
 }
 
 type AuthControllerPayloadSignUp struct {
@@ -33,9 +31,9 @@ type AuthControllerPayloadSignIn struct {
 
 // Usecase
 type AuthUsecase interface {
-	SignUp(email, password string) (accessToken, refreshToken string, accessTokenExpirationTime, refreshTokenExpirationTime time.Time, err error)
-	SignIn(email, password string) (accessToken, refreshToken string, accessTokenExpirationTime, refreshTokenExpirationTime time.Time, err error)
-	RefreshAccessToken(refreshToken string) (string, time.Time, error)
+	SignUp(email, password string) error
+	GetAccessToken(email, password string) (string, error)
+	GetUserByFirebaseUID(UID string) (*UserModel, error)
 	GetUserByUID(UID string) (*UserModel, error)
 	GetAdminByUserID(UserID int) (*AdminModel, error)
 }
@@ -44,8 +42,8 @@ type AuthUsecase interface {
 type UserModel struct {
 	ID           int    `db:"id" json:"id"`
 	UID          string `db:"uid" json:"uid"`
+	FirebaseUID  string `db:"firebase_uid" json:"firebase_uid"`
 	Email        string `db:"email" json:"email"`
-	Password     string `db:"password" json:"password"`
 	Name         string `db:"name" json:"name"`
 	Phone        string `db:"phone" json:"phone"`
 	ProfileImage string `db:"profile_image" json:"profile_image"`
@@ -67,14 +65,15 @@ type AdminModel struct {
 type AuthRepository interface {
 	CreateUser(userPayload *AuthRepositoryPayloadCreateUser) (int, error)
 	GetUserByEmail(email string) (*UserModel, error)
+	GetUserByFirebaseUID(UID string) (*UserModel, error)
 	GetUserByUID(UID string) (*UserModel, error)
 	GetAdminByUserID(UserID int) (*AdminModel, error)
 }
 
 type AuthRepositoryPayloadCreateUser struct {
 	UID          string `db:"uid" json:"uid"`
+	FirebaseUID  string `db:"firebase_uid" json:"firebase_uid"`
 	Email        string `db:"email" json:"email"`
-	Password     string `db:"password" json:"password"`
 	Name         string `db:"name" json:"name"`
 	Phone        string `db:"phone" json:"phone"`
 	ProfileImage string `db:"profile_image" json:"profile_image"`

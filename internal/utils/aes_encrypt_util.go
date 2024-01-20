@@ -8,7 +8,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/rizkyzhang/ayobeli-backend/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
 type baseAesEncrypt struct {

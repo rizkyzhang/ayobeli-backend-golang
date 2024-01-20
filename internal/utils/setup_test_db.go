@@ -14,7 +14,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
 func SetupTestDB(env *domain.Env) (*dockertest.Pool, *dockertest.Resource, *sqlx.DB) {

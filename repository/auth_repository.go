@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/rizkyzhang/ayobeli-backend/domain"
-	"github.com/rizkyzhang/ayobeli-backend/internal/utils"
+	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
+	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
 )
 
 type baseAuthRepository struct {
@@ -27,8 +27,8 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 	}()
 
 	query, args, err := tx.BindNamed(`
-	INSERT INTO users (uid, email, password, name, phone, profile_image, created_at, updated_at)
-	VALUES (:uid, :email, :password, :name, :phone, :profile_image, :created_at, :updated_at)
+	INSERT INTO users (uid, firebase_uid, email, name, phone, profile_image, created_at, updated_at)
+	VALUES (:uid, :firebase_uid, :email, :name, :phone, :profile_image, :created_at, :updated_at)
 	RETURNING id;
 	`, userPayload)
 	if err != nil {
@@ -42,7 +42,6 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 	}
 
 	metadata := utils.GenerateMetadata()
-
 	cart := domain.CartModel{
 		UID:              metadata.UID(),
 		Quantity:         0,
@@ -75,6 +74,21 @@ func (b *baseAuthRepository) GetUserByEmail(email string) (*domain.UserModel, er
 	var user domain.UserModel
 
 	err := b.db.Get(&user, "SELECT * FROM users WHERE email = $1;", email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (b *baseAuthRepository) GetUserByFirebaseUID(UID string) (*domain.UserModel, error) {
+	var user domain.UserModel
+
+	err := b.db.Get(&user, "SELECT * FROM users WHERE firebase_uid = $1;", UID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil

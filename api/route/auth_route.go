@@ -16,4 +16,5 @@ func NewAuthRouter(env *domain.Env, db *sqlx.DB, rootGroup *echo.Group, authUsec
 	privateGroup.Use(authMiddleware.ValidateUser())
 
 	publicGroup.POST("/signup", ct.SignUp)
+	publicGroup.GET("/token", ct.GetAccessToken)
 }

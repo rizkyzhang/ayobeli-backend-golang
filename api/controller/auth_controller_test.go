@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
+	"github.com/brianvoe/gofakeit/v6"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/rizkyzhang/ayobeli-backend-golang/api/controller"
@@ -28,15 +28,16 @@ type AuthControllerSuite struct {
 	ucMock                 *mocks.AuthUsecaseMock
 	ct                     domain.AuthController
 	badRequestRes          response_util.Response
+	notFoundRes            response_util.Response
 	internalServerErrorRes response_util.Response
 	email                  string
 	password               string
 }
 
 func (s *AuthControllerSuite) SetupTest() {
-	authUsecaseMock := &mocks.AuthUsecaseMock{}
 	env := utils.LoadConfig("../../.env")
 	validate := validator.New()
+	authUsecaseMock := &mocks.AuthUsecaseMock{}
 	ct := controller.NewAuthController(authUsecaseMock, env, validate)
 
 	s.ct = ct
@@ -44,6 +45,10 @@ func (s *AuthControllerSuite) SetupTest() {
 	s.badRequestRes = response_util.Response{
 		Code:   http.StatusBadRequest,
 		Status: http.StatusText(http.StatusBadRequest),
+	}
+	s.notFoundRes = response_util.Response{
+		Code:   http.StatusNotFound,
+		Status: http.StatusText(http.StatusNotFound),
 	}
 	s.internalServerErrorRes = response_util.Response{
 		Code:   http.StatusInternalServerError,
@@ -84,58 +89,7 @@ func (s *AuthControllerSuite) ValidateRes(rec *httptest.ResponseRecorder, expect
 }
 
 func (s *AuthControllerSuite) TestSignUp() {
-	s.Run("Return bad request given invalid email", func() {
-		expectedRes := s.badRequestRes
-		expectedRes.Error = "invalid email"
-
-		s.req.Header.Set("email", "test@email")
-		s.req.Header.Set("password", "test1234")
-
-		if s.NoError(s.ct.SignUp(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
-		}
-	})
-
-	s.Run("Return bad request given invalid password", func() {
-		expectedRes := s.badRequestRes
-		expectedRes.Error = "min password length is 8"
-
-		s.req.Header.Set("email", "test@email.com")
-		s.req.Header.Set("password", "test")
-
-		if s.NoError(s.ct.SignUp(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
-		}
-	})
-
-	s.Run("Return bad request when user already exist", func() {
-		expectedRes := s.badRequestRes
-		expectedRes.Error = "user already exist"
-
-		s.req.Header.Set("email", s.email)
-		s.req.Header.Set("password", s.password)
-
-		s.ucMock.SignUpReturns("", "", time.Time{}, time.Time{}, errors.New("user already exist"))
-
-		if s.NoError(s.ct.SignUp(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
-		}
-	})
-
-	s.Run("Return internal server error when business logic failed", func() {
-		expectedRes := s.internalServerErrorRes
-
-		s.req.Header.Set("email", s.email)
-		s.req.Header.Set("password", s.password)
-
-		s.ucMock.SignUpReturns("", "", time.Time{}, time.Time{}, errors.New(""))
-
-		if s.NoError(s.ct.SignUp(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
-		}
-	})
-
-	s.Run("Return created", func() {
+	s.Run("Signup should return created if successful", func() {
 		expectedRes := response_util.Response{
 			Code:   http.StatusCreated,
 			Status: http.StatusText(http.StatusCreated),
@@ -144,102 +98,119 @@ func (s *AuthControllerSuite) TestSignUp() {
 		s.req.Header.Set("email", s.email)
 		s.req.Header.Set("password", s.password)
 
-		s.ucMock.SignUpReturns("", "", time.Time{}, time.Time{}, nil)
+		s.ucMock.SignUpReturns(nil)
 
 		if s.NoError(s.ct.SignUp(s.c)) {
 			s.ValidateRes(s.rec, expectedRes)
-
-			cookies := s.rec.Result().Cookies()
-			var cookieNames []string
-
-			for _, cookie := range cookies {
-				cookieNames = append(cookieNames, cookie.Name)
-			}
-
-			s.Contains(cookieNames, "access_token")
-			s.Contains(cookieNames, "refresh_token")
-			s.Contains(cookieNames, "is_auth")
 		}
 	})
-}
 
-func (s *AuthControllerSuite) TestSignIn() {
-	s.Run("Return bad request given invalid email", func() {
+	s.Run("Signup should return bad request error given invalid email", func() {
 		expectedRes := s.badRequestRes
 		expectedRes.Error = "invalid email"
 
 		s.req.Header.Set("email", "test@email")
 		s.req.Header.Set("password", "test1234")
 
-		if s.NoError(s.ct.SignIn(s.c)) {
+		if s.NoError(s.ct.SignUp(s.c)) {
 			s.ValidateRes(s.rec, expectedRes)
 		}
 	})
 
-	s.Run("Return bad request when user not found", func() {
+	s.Run("Signup should return bad request error given invalid password", func() {
 		expectedRes := s.badRequestRes
-		expectedRes.Error = "user not found"
+		expectedRes.Error = "min password length is 8"
+
+		s.req.Header.Set("email", s.email)
+		s.req.Header.Set("password", "test")
+
+		if s.NoError(s.ct.SignUp(s.c)) {
+			s.ValidateRes(s.rec, expectedRes)
+		}
+	})
+
+	s.Run("Signup should return bad request error if user already exist", func() {
+		expectedRes := s.badRequestRes
+		expectedRes.Error = "user already exist"
 
 		s.req.Header.Set("email", s.email)
 		s.req.Header.Set("password", s.password)
 
-		s.ucMock.SignInReturns("", "", time.Time{}, time.Time{}, errors.New("user not found"))
+		s.ucMock.SignUpReturns(errors.New("user already exist"))
 
-		if s.NoError(s.ct.SignIn(s.c)) {
+		if s.NoError(s.ct.SignUp(s.c)) {
 			s.ValidateRes(s.rec, expectedRes)
 		}
 	})
 
-	s.Run("Return bad request given wrong password", func() {
-		expectedRes := s.badRequestRes
-		expectedRes.Error = "wrong password"
-
-		s.req.Header.Set("email", s.email)
-		s.req.Header.Set("password", s.password)
-
-		s.ucMock.SignInReturns("", "", time.Time{}, time.Time{}, errors.New("wrong password"))
-
-		if s.NoError(s.ct.SignIn(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
-		}
-	})
-
-	s.Run("Return internal server error when business logic failed", func() {
+	s.Run("Signup should return internal server error if business logic failed", func() {
 		expectedRes := s.internalServerErrorRes
 
 		s.req.Header.Set("email", s.email)
 		s.req.Header.Set("password", s.password)
 
-		s.ucMock.SignInReturns("", "", time.Time{}, time.Time{}, errors.New(""))
+		s.ucMock.SignUpReturns(errors.New(""))
 
-		if s.NoError(s.ct.SignIn(s.c)) {
+		if s.NoError(s.ct.SignUp(s.c)) {
+			s.ValidateRes(s.rec, expectedRes)
+		}
+	})
+}
+
+func (s *AuthControllerSuite) TestSignIn() {
+	s.Run("Get access token should return bad request given invalid email", func() {
+		expectedRes := s.badRequestRes
+		expectedRes.Error = "invalid email"
+
+		s.req.Header.Set("email", "test@email")
+		s.req.Header.Set("password", s.password)
+
+		if s.NoError(s.ct.GetAccessToken(s.c)) {
 			s.ValidateRes(s.rec, expectedRes)
 		}
 	})
 
-	s.Run("Return OK", func() {
+	s.Run("Get access token should return not found error if user not found", func() {
+		expectedRes := s.notFoundRes
+		expectedRes.Error = "user not found"
+
+		s.req.Header.Set("email", s.email)
+		s.req.Header.Set("password", s.password)
+
+		s.ucMock.GetAccessTokenReturns("", errors.New("user not found"))
+
+		if s.NoError(s.ct.GetAccessToken(s.c)) {
+			s.ValidateRes(s.rec, expectedRes)
+		}
+	})
+
+	s.Run("Get access token should return internal server error if business logic failed", func() {
+		expectedRes := s.internalServerErrorRes
+
+		s.req.Header.Set("email", s.email)
+		s.req.Header.Set("password", s.password)
+
+		s.ucMock.GetAccessTokenReturns("", errors.New(""))
+
+		if s.NoError(s.ct.GetAccessToken(s.c)) {
+			s.ValidateRes(s.rec, expectedRes)
+		}
+	})
+
+	s.Run("Get access token should return OK if successful", func() {
+		expectedData := gofakeit.UUID()
 		expectedRes := response_util.Response{
 			Code:   http.StatusOK,
 			Status: http.StatusText(http.StatusOK),
+			Data:   expectedData,
 		}
 		s.req.Header.Set("email", s.email)
 		s.req.Header.Set("password", s.password)
 
-		s.ucMock.SignInReturns("", "", time.Time{}, time.Time{}, nil)
+		s.ucMock.GetAccessTokenReturns(expectedData, nil)
 
-		if s.NoError(s.ct.SignIn(s.c)) {
+		if s.NoError(s.ct.GetAccessToken(s.c)) {
 			s.ValidateRes(s.rec, expectedRes)
-
-			cookies := s.rec.Result().Cookies()
-			var cookieNames []string
-
-			for _, cookie := range cookies {
-				cookieNames = append(cookieNames, cookie.Name)
-			}
-
-			s.Contains(cookieNames, "access_token")
-			s.Contains(cookieNames, "refresh_token")
-			s.Contains(cookieNames, "is_auth")
 		}
 	})
 }

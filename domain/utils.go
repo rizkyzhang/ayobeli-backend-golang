@@ -6,6 +6,8 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o mocks/auth_util_mock.go --fake-name AuthUtilMock . AuthUtil
+
 type Env struct {
 	AppEnv                    string `mapstructure:"APP_ENV"`
 	ServerAddress             string `mapstructure:"SERVER_ADDRESS"`
@@ -22,6 +24,12 @@ type Env struct {
 	RefreshTokenExpiryHour    int    `mapstructure:"REFRESH_TOKEN_EXPIRY_HOUR"`
 	AccessTokenSecret         string `mapstructure:"ACCESS_TOKEN_SECRET"`
 	RefreshTokenSecret        string `mapstructure:"REFRESH_TOKEN_SECRET"`
+}
+
+type AuthUtil interface {
+	CreateUser(email, password string) (authUID string, err error)
+	VerifyToken(token string) (authUID string, err error)
+	GetAccessToken(email, password string) (accessToken string, err error)
 }
 
 type AesEncryptUtil interface {

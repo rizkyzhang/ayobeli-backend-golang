@@ -5,6 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
+	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
 
 	"github.com/rizkyzhang/ayobeli-backend-golang/api/middleware"
 	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
@@ -13,12 +14,13 @@ import (
 )
 
 func Setup(env *domain.Env, db *sqlx.DB, firebaseAuth *auth.Client, e *echo.Echo) {
+	authUtil := utils.NewAuthUtil(env, firebaseAuth)
 	authRepo := repository.NewAuthRepository(db)
-	authUsecase := usecase.NewAuthUsecase(env, authRepo, firebaseAuth)
-	authMiddleware := middleware.NewAuthMiddleware(authUsecase, firebaseAuth)
+	authUsecase := usecase.NewAuthUsecase(env, authRepo, authUtil)
+	authMiddleware := middleware.NewAuthMiddleware(authUsecase, authUtil)
 	validate := validator.New()
 
 	rootGroup := e.Group("/api")
 
-	NewAuthRouter(env, db, rootGroup, authUsecase, authMiddleware, validate)
+	NewAuthRouter(env, rootGroup, authUsecase, authMiddleware, validate)
 }

@@ -3,7 +3,7 @@ package middleware
 import (
 	"context"
 	"errors"
-	"net/http"
+	"strings"
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/labstack/echo/v4"
@@ -23,29 +23,20 @@ func NewAuthMiddleware(authUsecase domain.AuthUsecase, firebaseAuth *auth.Client
 	}
 }
 
-type AuthHeader struct {
-	Authorization string `header:"authorization"`
-}
-
 func (b *baseAuthMiddleware) ValidateUser() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			var authHeader AuthHeader
-
-			err := c.Bind(&authHeader)
-			if err != nil {
-				if errors.Is(err, http.ErrNoCookie) {
-					return response_util.FromForbiddenError(errors.New("access token not found")).WithEcho(c)
-				}
-
+			_bearerToken := c.Request().Header.Get("authorization")
+			if !strings.HasPrefix(_bearerToken, "Bearer ") {
 				return response_util.FromForbiddenError(errors.New("invalid access token")).WithEcho(c)
 			}
 
-			token, err := b.firebaseAuth.VerifyIDTokenAndCheckRevoked(context.Background(), authHeader.Authorization)
+			bearerToken := strings.Split(_bearerToken, " ")[1]
+			token, err := b.firebaseAuth.VerifyIDTokenAndCheckRevoked(context.Background(), bearerToken)
 			if err != nil {
 				return response_util.FromForbiddenError(err).WithEcho(c)
 			}
-			user, err := b.authUsecase.GetUserByUID(token.UID)
+			user, err := b.authUsecase.GetUserByFirebaseUID(token.UID)
 			if user == nil {
 				return response_util.FromForbiddenError(errors.New("access denied")).WithEcho(c)
 			}

@@ -13,11 +13,8 @@ import (
 )
 
 func Setup(env *domain.Env, db *sqlx.DB, firebaseAuth *auth.Client, e *echo.Echo) {
-	//hashUtil := utils.NewHashUtil()
-	//jwtUtil := utils.NewJWTUtil([]byte(env.AccessTokenSecret), []byte(env.RefreshTokenSecret), env.AccessTokenExpiryHour, env.RefreshTokenExpiryHour)
-
 	authRepo := repository.NewAuthRepository(db)
-	authUsecase := usecase.NewAuthUsecase(authRepo, firebaseAuth)
+	authUsecase := usecase.NewAuthUsecase(env, authRepo, firebaseAuth)
 	authMiddleware := middleware.NewAuthMiddleware(authUsecase, firebaseAuth)
 	validate := validator.New()
 

@@ -43,7 +43,6 @@ func (s *CartUsecaseSuite) BeforeTest(suiteName, testName string) {
 	ID, err := s.authRepo.CreateUser(&domain.AuthRepositoryPayloadCreateUser{
 		UID:          metadata.UID(),
 		Email:        gofakeit.Email(),
-		Password:     gofakeit.Password(true, true, true, true, false, 8),
 		Name:         gofakeit.Name(),
 		Phone:        gofakeit.Phone(),
 		ProfileImage: gofakeit.ImageURL(100, 100),

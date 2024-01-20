@@ -15,6 +15,7 @@ type AuthMiddleware interface {
 }
 
 type AuthController interface {
+	GetAccessToken(c echo.Context) error
 	SignUp(c echo.Context) error
 }
 
@@ -31,6 +32,8 @@ type AuthControllerPayloadSignIn struct {
 // Usecase
 type AuthUsecase interface {
 	SignUp(email, password string) error
+	GetAccessToken(email, password string) (string, error)
+	GetUserByFirebaseUID(UID string) (*UserModel, error)
 	GetUserByUID(UID string) (*UserModel, error)
 	GetAdminByUserID(UserID int) (*AdminModel, error)
 }
@@ -62,6 +65,7 @@ type AdminModel struct {
 type AuthRepository interface {
 	CreateUser(userPayload *AuthRepositoryPayloadCreateUser) (int, error)
 	GetUserByEmail(email string) (*UserModel, error)
+	GetUserByFirebaseUID(UID string) (*UserModel, error)
 	GetUserByUID(UID string) (*UserModel, error)
 	GetAdminByUserID(UserID int) (*AdminModel, error)
 }

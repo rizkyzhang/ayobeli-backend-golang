@@ -1,15 +1,8 @@
 package usecase
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
-	"net/http"
 
-	"firebase.google.com/go/v4/auth"
 	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
 )
@@ -17,14 +10,14 @@ import (
 type baseAuthUsecase struct {
 	env            *domain.Env
 	authRepository domain.AuthRepository
-	firebaseAuth   *auth.Client
+	authUtil       domain.AuthUtil
 }
 
-func NewAuthUsecase(env *domain.Env, authRepository domain.AuthRepository, firebaseAuth *auth.Client) domain.AuthUsecase {
+func NewAuthUsecase(env *domain.Env, authRepository domain.AuthRepository, authUtil domain.AuthUtil) domain.AuthUsecase {
 	return &baseAuthUsecase{
 		env:            env,
 		authRepository: authRepository,
-		firebaseAuth:   firebaseAuth,
+		authUtil:       authUtil,
 	}
 }
 
@@ -37,10 +30,7 @@ func (b *baseAuthUsecase) SignUp(email, password string) error {
 		return err
 	}
 
-	params := (&auth.UserToCreate{}).
-		Email(email).
-		Password(password)
-	firebaseUserRecord, err := b.firebaseAuth.CreateUser(context.Background(), params)
+	firebaseUID, err := b.authUtil.CreateUser(email, password)
 	if err != nil {
 		return err
 	}
@@ -48,7 +38,7 @@ func (b *baseAuthUsecase) SignUp(email, password string) error {
 	metadata := utils.GenerateMetadata()
 	userPayload := &domain.AuthRepositoryPayloadCreateUser{
 		UID:         metadata.UID(),
-		FirebaseUID: firebaseUserRecord.UID,
+		FirebaseUID: firebaseUID,
 		Email:       email,
 		CreatedAt:   metadata.CreatedAt,
 		UpdatedAt:   metadata.UpdatedAt,
@@ -70,47 +60,15 @@ func (b *baseAuthUsecase) GetAccessToken(email, password string) (string, error)
 		return "", err
 	}
 
-	reqBody := map[string]string{
-		"email":             email,
-		"password":          password,
-		"returnSecureToken": "true",
-	}
-	reqBytes, err := json.Marshal(reqBody)
+	accessToken, err := b.authUtil.GetAccessToken(email, password)
 	if err != nil {
-		fmt.Println("Error marshaling request body:", err)
 		return "", err
+	}
+	if accessToken == "" {
+		return "", errors.New("invalid password")
 	}
 
-	req, err := http.NewRequest("POST", b.env.FirebaseVerifyPasswordURL, bytes.NewBuffer(reqBytes))
-	if err != nil {
-		fmt.Println("Error creating request:", err)
-		return "", err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println("Error sending request:", err)
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	_resBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		return "", err
-	}
-	var resBody struct {
-		IdToken string `json:"idToken"`
-	}
-	err = json.Unmarshal(_resBody, &resBody)
-	if err != nil {
-		fmt.Println("Error unmarshalling response body:", err)
-		return "", err
-	}
-
-	return resBody.IdToken, nil
+	return accessToken, nil
 }
 
 func (b *baseAuthUsecase) GetUserByFirebaseUID(UID string) (*domain.UserModel, error) {

@@ -1,21 +1,21 @@
 package usecase
 
 import (
+	"context"
 	"errors"
-	"time"
 
+	"firebase.google.com/go/v4/auth"
 	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
 )
 
 type baseAuthUsecase struct {
 	authRepository domain.AuthRepository
-	hashUtil       domain.HashUtil
-	jwtUtil        domain.JWTUtil
+	firebaseAuth   *auth.Client
 }
 
-func NewAuthUsecase(authRepository domain.AuthRepository, hashUtil domain.HashUtil, jwtUtil domain.JWTUtil) domain.AuthUsecase {
-	return &baseAuthUsecase{authRepository: authRepository, hashUtil: hashUtil, jwtUtil: jwtUtil}
+func NewAuthUsecase(authRepository domain.AuthRepository, firebaseAuth *auth.Client) domain.AuthUsecase {
+	return &baseAuthUsecase{authRepository: authRepository, firebaseAuth: firebaseAuth}
 }
 
 func (b *baseAuthUsecase) GetUserByUID(UID string) (*domain.UserModel, error) {
@@ -36,76 +36,35 @@ func (b *baseAuthUsecase) GetAdminByUserID(userID int) (*domain.AdminModel, erro
 	return admin, nil
 }
 
-func (b *baseAuthUsecase) SignUp(email, password string) (accessToken, refreshToken string, accessTokenExpirationTime, refreshTokenExpirationTime time.Time, err error) {
+func (b *baseAuthUsecase) SignUp(email, password string) error {
 	user, err := b.authRepository.GetUserByEmail(email)
 	if user != nil {
-		return "", "", time.Time{}, time.Time{}, errors.New("user already exist")
+		return errors.New("user already exist")
 	}
 	if err != nil {
-		return "", "", time.Time{}, time.Time{}, err
+		return err
 	}
 
-	hashedPassword, err := b.hashUtil.HashPassword(password)
+	params := (&auth.UserToCreate{}).
+		Email(email).
+		Password(password)
+	firebaseUserRecord, err := b.firebaseAuth.CreateUser(context.Background(), params)
 	if err != nil {
-		return "", "", time.Time{}, time.Time{}, err
+		return err
 	}
+
 	metadata := utils.GenerateMetadata()
-
 	userPayload := &domain.AuthRepositoryPayloadCreateUser{
-		UID:       metadata.UID(),
-		Email:     email,
-		Password:  hashedPassword,
-		CreatedAt: metadata.CreatedAt,
-		UpdatedAt: metadata.UpdatedAt,
+		UID:         metadata.UID(),
+		FirebaseUID: firebaseUserRecord.UID,
+		Email:       email,
+		CreatedAt:   metadata.CreatedAt,
+		UpdatedAt:   metadata.UpdatedAt,
 	}
 	_, err = b.authRepository.CreateUser(userPayload)
 	if err != nil {
-		return "", "", time.Time{}, time.Time{}, err
+		return err
 	}
 
-	accessToken, accessTokenExpirationTime, err = b.jwtUtil.GenerateAccessToken(userPayload.UID)
-	if err != nil {
-		return "", "", time.Time{}, time.Time{}, err
-	}
-	refreshToken, refreshTokenExpirationTime, err = b.jwtUtil.GenerateRefreshToken(userPayload.UID)
-	if err != nil {
-		return "", "", time.Time{}, time.Time{}, err
-	}
-
-	return
-}
-
-func (b *baseAuthUsecase) SignIn(email, password string) (accessToken, refreshToken string, accessTokenExpirationTime, refreshTokenExpirationTime time.Time, err error) {
-	user, err := b.authRepository.GetUserByEmail(email)
-	if user == nil {
-		return "", "", time.Time{}, time.Time{}, errors.New("user not found")
-	}
-	if err != nil {
-		return "", "", time.Time{}, time.Time{}, err
-	}
-
-	isPasswordCorrect := b.hashUtil.ValidatePassword(password, user.Password)
-	if !isPasswordCorrect {
-		return "", "", time.Time{}, time.Time{}, errors.New("wrong password")
-	}
-
-	accessToken, accessTokenExpirationTime, err = b.jwtUtil.GenerateAccessToken(user.UID)
-	if err != nil {
-		return "", "", time.Time{}, time.Time{}, err
-	}
-	refreshToken, refreshTokenExpirationTime, err = b.jwtUtil.GenerateRefreshToken(user.UID)
-	if err != nil {
-		return "", "", time.Time{}, time.Time{}, err
-	}
-
-	return
-}
-
-func (b *baseAuthUsecase) RefreshAccessToken(refreshToken string) (string, time.Time, error) {
-	newAccessToken, expirationTime, err := b.jwtUtil.Refresh(refreshToken)
-	if err != nil {
-		return "", time.Time{}, err
-	}
-
-	return newAccessToken, expirationTime, nil
+	return nil
 }

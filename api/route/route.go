@@ -8,18 +8,17 @@ import (
 
 	"github.com/rizkyzhang/ayobeli-backend-golang/api/middleware"
 	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
-	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
 	"github.com/rizkyzhang/ayobeli-backend-golang/repository"
 	"github.com/rizkyzhang/ayobeli-backend-golang/usecase"
 )
 
 func Setup(env *domain.Env, db *sqlx.DB, firebaseAuth *auth.Client, e *echo.Echo) {
-	hashUtil := utils.NewHashUtil()
-	jwtUtil := utils.NewJWTUtil([]byte(env.AccessTokenSecret), []byte(env.RefreshTokenSecret), env.AccessTokenExpiryHour, env.RefreshTokenExpiryHour)
+	//hashUtil := utils.NewHashUtil()
+	//jwtUtil := utils.NewJWTUtil([]byte(env.AccessTokenSecret), []byte(env.RefreshTokenSecret), env.AccessTokenExpiryHour, env.RefreshTokenExpiryHour)
 
 	authRepo := repository.NewAuthRepository(db)
-	authUsecase := usecase.NewAuthUsecase(authRepo, hashUtil, jwtUtil)
-	authMiddleware := middleware.NewAuthMiddleware(authUsecase, jwtUtil)
+	authUsecase := usecase.NewAuthUsecase(authRepo, firebaseAuth)
+	authMiddleware := middleware.NewAuthMiddleware(authUsecase, firebaseAuth)
 	validate := validator.New()
 
 	rootGroup := e.Group("/api")

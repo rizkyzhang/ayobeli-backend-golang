@@ -27,8 +27,8 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 	}()
 
 	query, args, err := tx.BindNamed(`
-	INSERT INTO users (uid, email, password, name, phone, profile_image, created_at, updated_at)
-	VALUES (:uid, :email, :password, :name, :phone, :profile_image, :created_at, :updated_at)
+	INSERT INTO users (uid, firebase_uid, email, name, phone, profile_image, created_at, updated_at)
+	VALUES (:uid, :firebase_uid, :email, :name, :phone, :profile_image, :created_at, :updated_at)
 	RETURNING id;
 	`, userPayload)
 	if err != nil {
@@ -42,7 +42,6 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 	}
 
 	metadata := utils.GenerateMetadata()
-
 	cart := domain.CartModel{
 		UID:              metadata.UID(),
 		Quantity:         0,

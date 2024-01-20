@@ -1,42 +1,40 @@
 package middleware
 
 import (
-	"context"
 	"errors"
 	"strings"
 
-	"firebase.google.com/go/v4/auth"
 	"github.com/labstack/echo/v4"
 	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils/response_util"
 )
 
 type baseAuthMiddleware struct {
-	authUsecase  domain.AuthUsecase
-	firebaseAuth *auth.Client
+	authUsecase domain.AuthUsecase
+	authUtil    domain.AuthUtil
 }
 
-func NewAuthMiddleware(authUsecase domain.AuthUsecase, firebaseAuth *auth.Client) domain.AuthMiddleware {
+func NewAuthMiddleware(authUsecase domain.AuthUsecase, authUtil domain.AuthUtil) domain.AuthMiddleware {
 	return &baseAuthMiddleware{
-		authUsecase:  authUsecase,
-		firebaseAuth: firebaseAuth,
+		authUsecase: authUsecase,
+		authUtil:    authUtil,
 	}
 }
 
 func (b *baseAuthMiddleware) ValidateUser() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			_bearerToken := c.Request().Header.Get("authorization")
-			if !strings.HasPrefix(_bearerToken, "Bearer ") {
+			bearerToken := c.Request().Header.Get("authorization")
+			if !strings.HasPrefix(bearerToken, "Bearer ") {
 				return response_util.FromForbiddenError(errors.New("invalid access token")).WithEcho(c)
 			}
 
-			bearerToken := strings.Split(_bearerToken, " ")[1]
-			token, err := b.firebaseAuth.VerifyIDTokenAndCheckRevoked(context.Background(), bearerToken)
+			token := strings.Split(bearerToken, " ")[1]
+			firebaseUID, err := b.authUtil.VerifyToken(token)
 			if err != nil {
 				return response_util.FromForbiddenError(err).WithEcho(c)
 			}
-			user, err := b.authUsecase.GetUserByFirebaseUID(token.UID)
+			user, err := b.authUsecase.GetUserByFirebaseUID(firebaseUID)
 			if user == nil {
 				return response_util.FromForbiddenError(errors.New("access denied")).WithEcho(c)
 			}

@@ -85,6 +85,21 @@ func (b *baseAuthRepository) GetUserByEmail(email string) (*domain.UserModel, er
 	return &user, nil
 }
 
+func (b *baseAuthRepository) GetUserByFirebaseUID(UID string) (*domain.UserModel, error) {
+	var user domain.UserModel
+
+	err := b.db.Get(&user, "SELECT * FROM users WHERE firebase_uid = $1;", UID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (b *baseAuthRepository) GetUserByUID(UID string) (*domain.UserModel, error) {
 	var user domain.UserModel
 

@@ -10,13 +10,13 @@ import (
 )
 
 type baseAuthMiddleware struct {
-	authUsecase domain.AuthUsecase
+	userUsecase domain.UserUsecase
 	authUtil    domain.AuthUtil
 }
 
-func NewAuthMiddleware(authUsecase domain.AuthUsecase, authUtil domain.AuthUtil) domain.AuthMiddleware {
+func NewAuthMiddleware(userUsecase domain.UserUsecase, authUtil domain.AuthUtil) domain.AuthMiddleware {
 	return &baseAuthMiddleware{
-		authUsecase: authUsecase,
+		userUsecase: userUsecase,
 		authUtil:    authUtil,
 	}
 }
@@ -34,7 +34,7 @@ func (b *baseAuthMiddleware) ValidateUser() echo.MiddlewareFunc {
 			if err != nil {
 				return response_util.FromForbiddenError(err).WithEcho(c)
 			}
-			user, err := b.authUsecase.GetUserByFirebaseUID(firebaseUID)
+			user, err := b.userUsecase.GetUserByFirebaseUID(firebaseUID)
 			if user == nil {
 				return response_util.FromForbiddenError(errors.New("access denied")).WithEcho(c)
 			}
@@ -56,7 +56,7 @@ func (b *baseAuthMiddleware) ValidateAdmin() echo.MiddlewareFunc {
 				return response_util.FromForbiddenError(errors.New("access denied")).WithEcho(c)
 			}
 
-			admin, err := b.authUsecase.GetAdminByUserID(user.ID)
+			admin, err := b.userUsecase.GetAdminByUserID(user.ID)
 			if admin == nil {
 				return response_util.FromForbiddenError(errors.New("access denied")).WithEcho(c)
 			}

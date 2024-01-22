@@ -2,6 +2,13 @@ package domain
 
 import "time"
 
+// Usecase
+type UserUsecase interface {
+	GetUserByFirebaseUID(UID string) (*UserModel, error)
+	GetUserByUID(UID string) (*UserModel, error)
+	GetAdminByUserID(UserID int) (*AdminModel, error)
+}
+
 // Repository
 type UserModel struct {
 	ID           int    `db:"id" json:"id"`

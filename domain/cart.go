@@ -127,7 +127,7 @@ type CartItemModel struct {
 	BasePriceValue     int     `db:"base_price_value" json:"base_price_value"`
 	OfferPrice         string  `db:"offer_price" json:"offer_price"`
 	OfferPriceValue    int     `db:"offer_price_value" json:"offer_price_value"`
-	Discount           uint8   `db:"discount" json:"discount"`
+	Discount           int     `db:"discount" json:"discount"`
 
 	// Relationship
 	CartID    int `db:"cart_id" json:"cart_id"`

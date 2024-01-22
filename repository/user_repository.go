@@ -9,15 +9,15 @@ import (
 	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
 )
 
-type baseAuthRepository struct {
+type baseUserRepository struct {
 	db *sqlx.DB
 }
 
-func NewAuthRepository(db *sqlx.DB) domain.AuthRepository {
-	return &baseAuthRepository{db: db}
+func NewUserRepository(db *sqlx.DB) domain.UserRepository {
+	return &baseUserRepository{db: db}
 }
 
-func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloadCreateUser) (int, error) {
+func (b *baseUserRepository) CreateUser(userPayload *domain.UserRepositoryPayloadCreateUser) (int, error) {
 	tx, err := b.db.Beginx()
 	if err != nil {
 		return 0, err
@@ -70,7 +70,7 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 	return userID, nil
 }
 
-func (b *baseAuthRepository) GetUserByEmail(email string) (*domain.UserModel, error) {
+func (b *baseUserRepository) GetUserByEmail(email string) (*domain.UserModel, error) {
 	var user domain.UserModel
 
 	err := b.db.Get(&user, "SELECT * FROM users WHERE email = $1;", email)
@@ -85,7 +85,7 @@ func (b *baseAuthRepository) GetUserByEmail(email string) (*domain.UserModel, er
 	return &user, nil
 }
 
-func (b *baseAuthRepository) GetUserByFirebaseUID(UID string) (*domain.UserModel, error) {
+func (b *baseUserRepository) GetUserByFirebaseUID(UID string) (*domain.UserModel, error) {
 	var user domain.UserModel
 
 	err := b.db.Get(&user, "SELECT * FROM users WHERE firebase_uid = $1;", UID)
@@ -100,7 +100,7 @@ func (b *baseAuthRepository) GetUserByFirebaseUID(UID string) (*domain.UserModel
 	return &user, nil
 }
 
-func (b *baseAuthRepository) GetUserByUID(UID string) (*domain.UserModel, error) {
+func (b *baseUserRepository) GetUserByUID(UID string) (*domain.UserModel, error) {
 	var user domain.UserModel
 
 	err := b.db.Get(&user, "SELECT * FROM users WHERE uid = $1;", UID)
@@ -115,7 +115,7 @@ func (b *baseAuthRepository) GetUserByUID(UID string) (*domain.UserModel, error)
 	return &user, nil
 }
 
-func (b *baseAuthRepository) GetAdminByUserID(userID int) (*domain.AdminModel, error) {
+func (b *baseUserRepository) GetAdminByUserID(userID int) (*domain.AdminModel, error) {
 	var admin domain.AdminModel
 
 	err := b.db.Get(&admin, "SELECT * FROM admins WHERE user_id = $1;", userID)

@@ -9,11 +9,11 @@ import (
 
 type baseAuthUsecase struct {
 	env            *domain.Env
-	authRepository domain.AuthRepository
+	authRepository domain.UserRepository
 	authUtil       domain.AuthUtil
 }
 
-func NewAuthUsecase(env *domain.Env, authRepository domain.AuthRepository, authUtil domain.AuthUtil) domain.AuthUsecase {
+func NewAuthUsecase(env *domain.Env, authRepository domain.UserRepository, authUtil domain.AuthUtil) domain.AuthUsecase {
 	return &baseAuthUsecase{
 		env:            env,
 		authRepository: authRepository,
@@ -36,7 +36,7 @@ func (b *baseAuthUsecase) SignUp(email, password string) error {
 	}
 
 	metadata := utils.GenerateMetadata()
-	userPayload := &domain.AuthRepositoryPayloadCreateUser{
+	userPayload := &domain.UserRepositoryPayloadCreateUser{
 		UID:         metadata.UID(),
 		FirebaseUID: firebaseUID,
 		Email:       email,

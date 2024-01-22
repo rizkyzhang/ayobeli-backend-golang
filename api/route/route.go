@@ -15,8 +15,8 @@ import (
 
 func Setup(env *domain.Env, db *sqlx.DB, firebaseAuth *auth.Client, e *echo.Echo) {
 	authUtil := utils.NewAuthUtil(env, firebaseAuth)
-	authRepo := repository.NewAuthRepository(db)
-	authUsecase := usecase.NewAuthUsecase(env, authRepo, authUtil)
+	userRepo := repository.NewUserRepository(db)
+	authUsecase := usecase.NewAuthUsecase(env, userRepo, authUtil)
 	authMiddleware := middleware.NewAuthMiddleware(authUsecase, authUtil)
 	validate := validator.New()
 

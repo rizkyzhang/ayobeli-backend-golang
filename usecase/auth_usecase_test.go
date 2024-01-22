@@ -28,7 +28,7 @@ type AuthUsecaseSuite struct {
 	ctx      context.Context
 	now      time.Time
 	nowUTC   time.Time
-	authRepo domain.AuthRepository
+	userRepo domain.UserRepository
 	cartRepo domain.CartRepository
 	email    string
 	password string
@@ -44,13 +44,13 @@ func (s *AuthUsecaseSuite) SetupTest() {
 
 	ctx := context.Background()
 	now := time.Now()
-	authRepo := repository.NewAuthRepository(s.db)
+	userRepo := repository.NewUserRepository(s.db)
 	cartRepo := repository.NewCartRepository(s.db)
 
 	s.ctx = ctx
 	s.now = now
 	s.nowUTC = now.UTC()
-	s.authRepo = authRepo
+	s.userRepo = userRepo
 	s.cartRepo = cartRepo
 	s.email = "test@email.com"
 	s.password = "test1234"
@@ -69,7 +69,7 @@ func TestAuthUsecase(t *testing.T) {
 func (s *AuthUsecaseSuite) TestAuthUsecase() {
 	s.Run("Signup should be successful", func() {
 		authUtilMock := &mocks.AuthUtilMock{}
-		uc := usecase.NewAuthUsecase(s.env, s.authRepo, authUtilMock)
+		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
 		expectedFirebaseUID := gofakeit.UUID()
 		authUtilMock.CreateUserReturns(expectedFirebaseUID, nil)
 
@@ -77,7 +77,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 		s.NoError(err)
 
 		// Validate created user
-		user, err := s.authRepo.GetUserByEmail(s.email)
+		user, err := s.userRepo.GetUserByEmail(s.email)
 		s.NoError(err)
 		s.NotNil(user)
 		s.Equal(s.email, user.Email)
@@ -91,7 +91,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 
 	s.Run("Signup should return an error if user already exist", func() {
 		authUtilMock := &mocks.AuthUtilMock{}
-		uc := usecase.NewAuthUsecase(s.env, s.authRepo, authUtilMock)
+		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
 
 		err := uc.SignUp(s.email, s.password)
 		s.Error(err)
@@ -99,7 +99,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 
 	s.Run("Get access token should be successful", func() {
 		authUtilMock := &mocks.AuthUtilMock{}
-		uc := usecase.NewAuthUsecase(s.env, s.authRepo, authUtilMock)
+		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
 		expectedAccessToken := gofakeit.UUID()
 		authUtilMock.GetAccessTokenReturns(expectedAccessToken, nil)
 
@@ -110,7 +110,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 
 	s.Run("Get access token should return an error if user not found", func() {
 		authUtilMock := &mocks.AuthUtilMock{}
-		uc := usecase.NewAuthUsecase(s.env, s.authRepo, authUtilMock)
+		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
 
 		_, err := uc.GetAccessToken("notfound@email.com", s.password)
 		s.Error(err)
@@ -119,7 +119,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 	s.Run("Get access token should return an error if result is empty which indicate invalid password", func() {
 		authUtilMock := &mocks.AuthUtilMock{}
 		authUtilMock.GetAccessTokenReturns("", nil)
-		uc := usecase.NewAuthUsecase(s.env, s.authRepo, authUtilMock)
+		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
 
 		_, err := uc.GetAccessToken(s.email, "invalid")
 		s.Error(err)

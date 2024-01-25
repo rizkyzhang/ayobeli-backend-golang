@@ -24,19 +24,21 @@ func NewAuthController(authUsecase domain.AuthUsecase, env *domain.Env, validate
 }
 
 func (b *baseAuthController) SignUp(c echo.Context) error {
-	email := c.Request().Header.Get("email")
-	password := c.Request().Header.Get("password")
-
-	err := b.validate.Var(email, "email")
+	var payload domain.AuthControllerPayloadSignUp
+	err := c.Bind(&payload)
+	if err != nil {
+		return response_util.FromBindingError(err).WithEcho(c)
+	}
+	err = b.validate.Var(payload.Email, "email")
 	if err != nil {
 		return response_util.FromBadRequestError(errors.New("invalid email")).WithEcho(c)
 	}
-	err = b.validate.Var(password, "min=8")
+	err = b.validate.Var(payload.Password, "min=8")
 	if err != nil {
 		return response_util.FromBadRequestError(errors.New("min password length is 8")).WithEcho(c)
 	}
 
-	err = b.authUsecase.SignUp(email, password)
+	err = b.authUsecase.SignUp(payload.Email, payload.Password, payload.IsAdmin)
 	if err != nil {
 		if err.Error() == "user already exist" {
 			return response_util.FromBadRequestError(err).WithEcho(c)
@@ -49,19 +51,21 @@ func (b *baseAuthController) SignUp(c echo.Context) error {
 }
 
 func (b *baseAuthController) GetAccessToken(c echo.Context) error {
-	email := c.Request().Header.Get("email")
-	password := c.Request().Header.Get("password")
-
-	err := b.validate.Var(email, "email")
+	var payload domain.AuthControllerPayloadGetAccessToken
+	err := c.Bind(&payload)
+	if err != nil {
+		return response_util.FromBindingError(err).WithEcho(c)
+	}
+	err = b.validate.Var(payload.Email, "email")
 	if err != nil {
 		return response_util.FromBadRequestError(errors.New("invalid email")).WithEcho(c)
 	}
-	err = b.validate.Var(password, "min=8")
+	err = b.validate.Var(payload.Password, "min=8")
 	if err != nil {
 		return response_util.FromBadRequestError(errors.New("min password length is 8")).WithEcho(c)
 	}
 
-	accessToken, err := b.authUsecase.GetAccessToken(email, password)
+	accessToken, err := b.authUsecase.GetAccessToken(payload.Email, payload.Password)
 	if err != nil {
 		if err.Error() == "user not found" {
 			return response_util.FromNotFoundError(err).WithEcho(c)

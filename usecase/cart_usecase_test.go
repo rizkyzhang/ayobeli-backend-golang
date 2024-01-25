@@ -27,7 +27,7 @@ type CartUsecaseSuite struct {
 	ctx            context.Context
 	now            time.Time
 	nowUTC         time.Time
-	authRepo       domain.AuthRepository
+	userRepo       domain.UserRepository
 	cartRepo       domain.CartRepository
 	productRepo    domain.ProductRepository
 	aesEncryptUtil domain.AesEncryptUtil
@@ -40,7 +40,7 @@ type CartUsecaseSuite struct {
 
 func (s *CartUsecaseSuite) BeforeTest(suiteName, testName string) {
 	metadata := utils.GenerateMetadata()
-	ID, err := s.authRepo.CreateUser(&domain.AuthRepositoryPayloadCreateUser{
+	ID, err := s.userRepo.CreateUser(&domain.UserRepositoryPayloadCreateUser{
 		UID:          metadata.UID(),
 		Email:        gofakeit.Email(),
 		Name:         gofakeit.Name(),
@@ -104,7 +104,7 @@ func (s *CartUsecaseSuite) SetupTest() {
 
 	ctx := context.Background()
 	now := time.Now()
-	authRepo := repository.NewAuthRepository(s.db)
+	userRepo := repository.NewUserRepository(s.db)
 	cartRepo := repository.NewCartRepository(s.db)
 	productRepo := repository.NewProductRepository(s.db)
 	aesEncryptUtil := utils.NewAesEncrypt(env.AesSecret)
@@ -114,7 +114,7 @@ func (s *CartUsecaseSuite) SetupTest() {
 	s.ctx = ctx
 	s.now = now
 	s.nowUTC = now.UTC()
-	s.authRepo = authRepo
+	s.userRepo = userRepo
 	s.cartRepo = cartRepo
 	s.productRepo = productRepo
 	s.aesEncryptUtil = aesEncryptUtil

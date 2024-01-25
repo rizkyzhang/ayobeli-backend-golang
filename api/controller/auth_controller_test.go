@@ -1,6 +1,7 @@
 package controller_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
@@ -21,17 +22,13 @@ import (
 
 type AuthControllerSuite struct {
 	suite.Suite
-	c                      echo.Context
-	e                      *echo.Echo
-	req                    *http.Request
-	rec                    *httptest.ResponseRecorder
 	ucMock                 *mocks.AuthUsecaseMock
 	ct                     domain.AuthController
+	createdRes             response_util.Response
 	badRequestRes          response_util.Response
 	notFoundRes            response_util.Response
 	internalServerErrorRes response_util.Response
-	email                  string
-	password               string
+	reqHelper              func(body io.Reader) (echo.Context, *httptest.ResponseRecorder)
 }
 
 func (s *AuthControllerSuite) SetupTest() {
@@ -42,6 +39,10 @@ func (s *AuthControllerSuite) SetupTest() {
 
 	s.ct = ct
 	s.ucMock = authUsecaseMock
+	s.createdRes = response_util.Response{
+		Code:   http.StatusCreated,
+		Status: http.StatusText(http.StatusCreated),
+	}
 	s.badRequestRes = response_util.Response{
 		Code:   http.StatusBadRequest,
 		Status: http.StatusText(http.StatusBadRequest),
@@ -54,20 +55,17 @@ func (s *AuthControllerSuite) SetupTest() {
 		Code:   http.StatusInternalServerError,
 		Status: http.StatusText(http.StatusInternalServerError),
 	}
-	s.email = "test@email.com"
-	s.password = "test1234"
-}
+	s.reqHelper = func(body io.Reader) (echo.Context, *httptest.ResponseRecorder) {
+		req := httptest.NewRequest(http.MethodPost, "/", body)
+		if body != nil {
+			req.Header.Set("Content-Type", "application/json")
+		}
+		rec := httptest.NewRecorder()
+		e := echo.New()
+		c := e.NewContext(req, rec)
 
-func (s *AuthControllerSuite) SetupSubTest() {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	s.e = e
-	s.req = req
-	s.rec = rec
-	s.c = c
+		return c, rec
+	}
 }
 
 func TestAuthControllerSuite(t *testing.T) {
@@ -89,19 +87,39 @@ func (s *AuthControllerSuite) ValidateRes(rec *httptest.ResponseRecorder, expect
 }
 
 func (s *AuthControllerSuite) TestSignUp() {
-	s.Run("Signup should return created if successful", func() {
-		expectedRes := response_util.Response{
-			Code:   http.StatusCreated,
-			Status: http.StatusText(http.StatusCreated),
-		}
+	s.Run("Signup as admin should return created if successful", func() {
+		expectedRes := s.createdRes
 
-		s.req.Header.Set("email", s.email)
-		s.req.Header.Set("password", s.password)
+		reqBody := &domain.AuthControllerPayloadSignUp{
+			Email:    gofakeit.Email(),
+			Password: gofakeit.Password(true, true, true, true, false, 8),
+			IsAdmin:  true,
+		}
+		reqBytes, err := json.Marshal(reqBody)
+		s.NoError(err)
+		c, rec := s.reqHelper(bytes.NewBuffer(reqBytes))
 
 		s.ucMock.SignUpReturns(nil)
+		if s.NoError(s.ct.SignUp(c)) {
+			s.ValidateRes(rec, expectedRes)
+		}
+	})
 
-		if s.NoError(s.ct.SignUp(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
+	s.Run("Signup as non-admin should return created if successful", func() {
+		expectedRes := s.createdRes
+
+		reqBody := &domain.AuthControllerPayloadSignUp{
+			Email:    gofakeit.Email(),
+			Password: gofakeit.Password(true, true, true, true, false, 8),
+			IsAdmin:  false,
+		}
+		reqBytes, err := json.Marshal(reqBody)
+		s.NoError(err)
+		c, rec := s.reqHelper(bytes.NewBuffer(reqBytes))
+
+		s.ucMock.SignUpReturns(nil)
+		if s.NoError(s.ct.SignUp(c)) {
+			s.ValidateRes(rec, expectedRes)
 		}
 	})
 
@@ -109,11 +127,17 @@ func (s *AuthControllerSuite) TestSignUp() {
 		expectedRes := s.badRequestRes
 		expectedRes.Error = "invalid email"
 
-		s.req.Header.Set("email", "test@email")
-		s.req.Header.Set("password", "test1234")
+		reqBody := &domain.AuthControllerPayloadSignUp{
+			Email:    "invalid",
+			Password: gofakeit.Password(true, true, true, true, false, 8),
+			IsAdmin:  false,
+		}
+		reqBytes, err := json.Marshal(reqBody)
+		s.NoError(err)
+		c, rec := s.reqHelper(bytes.NewBuffer(reqBytes))
 
-		if s.NoError(s.ct.SignUp(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
+		if s.NoError(s.ct.SignUp(c)) {
+			s.ValidateRes(rec, expectedRes)
 		}
 	})
 
@@ -121,11 +145,18 @@ func (s *AuthControllerSuite) TestSignUp() {
 		expectedRes := s.badRequestRes
 		expectedRes.Error = "min password length is 8"
 
-		s.req.Header.Set("email", s.email)
-		s.req.Header.Set("password", "test")
+		reqBody := &domain.AuthControllerPayloadSignUp{
+			Email:    gofakeit.Email(),
+			Password: gofakeit.Password(true, true, true, true, false, 5),
+			IsAdmin:  false,
+		}
+		reqBytes, err := json.Marshal(reqBody)
+		s.NoError(err)
+		c, rec := s.reqHelper(bytes.NewBuffer(reqBytes))
 
-		if s.NoError(s.ct.SignUp(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
+		s.ucMock.SignUpReturns(nil)
+		if s.NoError(s.ct.SignUp(c)) {
+			s.ValidateRes(rec, expectedRes)
 		}
 	})
 
@@ -133,70 +164,41 @@ func (s *AuthControllerSuite) TestSignUp() {
 		expectedRes := s.badRequestRes
 		expectedRes.Error = "user already exist"
 
-		s.req.Header.Set("email", s.email)
-		s.req.Header.Set("password", s.password)
+		reqBody := &domain.AuthControllerPayloadSignUp{
+			Email:    gofakeit.Email(),
+			Password: gofakeit.Password(true, true, true, true, false, 8),
+			IsAdmin:  false,
+		}
+		reqBytes, err := json.Marshal(reqBody)
+		s.NoError(err)
+		c, rec := s.reqHelper(bytes.NewBuffer(reqBytes))
 
 		s.ucMock.SignUpReturns(errors.New("user already exist"))
-
-		if s.NoError(s.ct.SignUp(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
+		if s.NoError(s.ct.SignUp(c)) {
+			s.ValidateRes(rec, expectedRes)
 		}
 	})
 
 	s.Run("Signup should return internal server error if business logic failed", func() {
 		expectedRes := s.internalServerErrorRes
 
-		s.req.Header.Set("email", s.email)
-		s.req.Header.Set("password", s.password)
+		reqBody := &domain.AuthControllerPayloadSignUp{
+			Email:    gofakeit.Email(),
+			Password: gofakeit.Password(true, true, true, true, false, 8),
+			IsAdmin:  false,
+		}
+		reqBytes, err := json.Marshal(reqBody)
+		s.NoError(err)
+		c, rec := s.reqHelper(bytes.NewBuffer(reqBytes))
 
 		s.ucMock.SignUpReturns(errors.New(""))
-
-		if s.NoError(s.ct.SignUp(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
+		if s.NoError(s.ct.SignUp(c)) {
+			s.ValidateRes(rec, expectedRes)
 		}
 	})
 }
 
 func (s *AuthControllerSuite) TestSignIn() {
-	s.Run("Get access token should return bad request given invalid email", func() {
-		expectedRes := s.badRequestRes
-		expectedRes.Error = "invalid email"
-
-		s.req.Header.Set("email", "test@email")
-		s.req.Header.Set("password", s.password)
-
-		if s.NoError(s.ct.GetAccessToken(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
-		}
-	})
-
-	s.Run("Get access token should return not found error if user not found", func() {
-		expectedRes := s.notFoundRes
-		expectedRes.Error = "user not found"
-
-		s.req.Header.Set("email", s.email)
-		s.req.Header.Set("password", s.password)
-
-		s.ucMock.GetAccessTokenReturns("", errors.New("user not found"))
-
-		if s.NoError(s.ct.GetAccessToken(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
-		}
-	})
-
-	s.Run("Get access token should return internal server error if business logic failed", func() {
-		expectedRes := s.internalServerErrorRes
-
-		s.req.Header.Set("email", s.email)
-		s.req.Header.Set("password", s.password)
-
-		s.ucMock.GetAccessTokenReturns("", errors.New(""))
-
-		if s.NoError(s.ct.GetAccessToken(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
-		}
-	})
-
 	s.Run("Get access token should return OK if successful", func() {
 		expectedData := gofakeit.UUID()
 		expectedRes := response_util.Response{
@@ -204,13 +206,70 @@ func (s *AuthControllerSuite) TestSignIn() {
 			Status: http.StatusText(http.StatusOK),
 			Data:   expectedData,
 		}
-		s.req.Header.Set("email", s.email)
-		s.req.Header.Set("password", s.password)
+
+		reqBody := &domain.AuthControllerPayloadGetAccessToken{
+			Email:    gofakeit.Email(),
+			Password: gofakeit.Password(true, true, true, true, false, 8),
+		}
+		reqBytes, err := json.Marshal(reqBody)
+		s.NoError(err)
+		c, rec := s.reqHelper(bytes.NewBuffer(reqBytes))
 
 		s.ucMock.GetAccessTokenReturns(expectedData, nil)
+		if s.NoError(s.ct.GetAccessToken(c)) {
+			s.ValidateRes(rec, expectedRes)
+		}
+	})
 
-		if s.NoError(s.ct.GetAccessToken(s.c)) {
-			s.ValidateRes(s.rec, expectedRes)
+	s.Run("Get access token should return bad request given invalid email", func() {
+		expectedRes := s.badRequestRes
+		expectedRes.Error = "invalid email"
+
+		reqBody := &domain.AuthControllerPayloadGetAccessToken{
+			Email:    "invalid",
+			Password: gofakeit.Password(true, true, true, true, false, 8),
+		}
+		reqBytes, err := json.Marshal(reqBody)
+		s.NoError(err)
+		c, rec := s.reqHelper(bytes.NewBuffer(reqBytes))
+
+		if s.NoError(s.ct.GetAccessToken(c)) {
+			s.ValidateRes(rec, expectedRes)
+		}
+	})
+
+	s.Run("Get access token should return not found error if user not found", func() {
+		expectedRes := s.notFoundRes
+		expectedRes.Error = "user not found"
+
+		reqBody := &domain.AuthControllerPayloadGetAccessToken{
+			Email:    gofakeit.Email(),
+			Password: gofakeit.Password(true, true, true, true, false, 8),
+		}
+		reqBytes, err := json.Marshal(reqBody)
+		s.NoError(err)
+		c, rec := s.reqHelper(bytes.NewBuffer(reqBytes))
+
+		s.ucMock.GetAccessTokenReturns("", errors.New("user not found"))
+		if s.NoError(s.ct.GetAccessToken(c)) {
+			s.ValidateRes(rec, expectedRes)
+		}
+	})
+
+	s.Run("Get access token should return internal server error if business logic failed", func() {
+		expectedRes := s.internalServerErrorRes
+
+		reqBody := &domain.AuthControllerPayloadGetAccessToken{
+			Email:    gofakeit.Email(),
+			Password: gofakeit.Password(true, true, true, true, false, 8),
+		}
+		reqBytes, err := json.Marshal(reqBody)
+		s.NoError(err)
+		c, rec := s.reqHelper(bytes.NewBuffer(reqBytes))
+
+		s.ucMock.GetAccessTokenReturns("", errors.New(""))
+		if s.NoError(s.ct.GetAccessToken(c)) {
+			s.ValidateRes(rec, expectedRes)
 		}
 	})
 }

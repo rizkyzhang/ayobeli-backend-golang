@@ -15,5 +15,5 @@ func NewAuthRouter(env *domain.Env, rootGroup *echo.Group, authUsecase domain.Au
 	privateGroup.Use(authMiddleware.ValidateUser())
 
 	publicGroup.POST("/signup", ct.SignUp)
-	publicGroup.GET("/token", ct.GetAccessToken)
+	publicGroup.POST("/token", ct.GetAccessToken)
 }

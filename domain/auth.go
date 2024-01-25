@@ -20,15 +20,16 @@ type AuthController interface {
 type AuthControllerPayloadSignUp struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	IsAdmin  bool   `json:"is_admin"`
 }
 
-type AuthControllerPayloadSignIn struct {
+type AuthControllerPayloadGetAccessToken struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 // Usecase
 type AuthUsecase interface {
-	SignUp(email, password string) error
+	SignUp(email, password string, isAdmin bool) error
 	GetAccessToken(email, password string) (string, error)
 }

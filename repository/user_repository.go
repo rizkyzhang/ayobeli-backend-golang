@@ -34,7 +34,6 @@ func (b *baseUserRepository) CreateUser(userPayload *domain.UserRepositoryPayloa
 	if err != nil {
 		return 0, err
 	}
-
 	var userID int
 	err = tx.Get(&userID, query, args...)
 	if err != nil {
@@ -42,6 +41,17 @@ func (b *baseUserRepository) CreateUser(userPayload *domain.UserRepositoryPayloa
 	}
 
 	metadata := utils.GenerateMetadata()
+	if userPayload.IsAdmin {
+		_, err := tx.Exec(`
+		INSERT INTO admins (uid, email, user_id, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5);
+		`, metadata.UID(), userPayload.Email, userID, metadata.CreatedAt, metadata.UpdatedAt)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	metadata = utils.GenerateMetadata()
 	cart := domain.CartModel{
 		UID:              metadata.UID(),
 		Quantity:         0,
@@ -53,7 +63,6 @@ func (b *baseUserRepository) CreateUser(userPayload *domain.UserRepositoryPayloa
 		CreatedAt:        metadata.CreatedAt,
 		UpdatedAt:        metadata.UpdatedAt,
 	}
-
 	_, err = tx.NamedExec(`
 	INSERT INTO carts (uid, quantity, total_price, total_price_value, total_weight, total_weight_value, user_id, created_at, updated_at)
 	VALUES (:uid, :quantity, :total_price, :total_price_value, :total_weight, :total_weight_value, :user_id, :created_at, :updated_at)
@@ -68,6 +77,18 @@ func (b *baseUserRepository) CreateUser(userPayload *domain.UserRepositoryPayloa
 	}
 
 	return userID, nil
+}
+
+func (b *baseUserRepository) CreateAdmin(adminPayload *domain.UserRepositoryPayloadCreateAdmin) error {
+	_, err := b.db.Exec(`
+		INSERT INTO admins (uid, email, user_id, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5);
+		`, adminPayload.UID, adminPayload.Email, adminPayload.UserID, adminPayload.CreatedAt, adminPayload.UpdatedAt)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (b *baseUserRepository) GetUserByEmail(email string) (*domain.UserModel, error) {

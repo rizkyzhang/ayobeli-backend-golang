@@ -21,7 +21,7 @@ func NewAuthUsecase(env *domain.Env, userRepository domain.UserRepository, authU
 	}
 }
 
-func (b *baseAuthUsecase) SignUp(email, password string) error {
+func (b *baseAuthUsecase) SignUp(email, password string, isAdmin bool) error {
 	user, err := b.userRepository.GetUserByEmail(email)
 	if user != nil {
 		return errors.New("user already exist")
@@ -40,6 +40,7 @@ func (b *baseAuthUsecase) SignUp(email, password string) error {
 		UID:         metadata.UID(),
 		FirebaseUID: firebaseUID,
 		Email:       email,
+		IsAdmin:     isAdmin,
 		CreatedAt:   metadata.CreatedAt,
 		UpdatedAt:   metadata.UpdatedAt,
 	}

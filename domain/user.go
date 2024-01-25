@@ -2,6 +2,9 @@ package domain
 
 import "time"
 
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o mocks/user_usecase_mock.go --fake-name UserUsecaseMock . UserUsecase
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o mocks/user_repository_mock.go --fake-name UserRepositoryMock . UserRepository
+
 // Usecase
 type UserUsecase interface {
 	GetUserByFirebaseUID(UID string) (*UserModel, error)
@@ -35,6 +38,7 @@ type AdminModel struct {
 
 type UserRepository interface {
 	CreateUser(userPayload *UserRepositoryPayloadCreateUser) (int, error)
+	CreateAdmin(adminPayload *UserRepositoryPayloadCreateAdmin) error
 	GetUserByEmail(email string) (*UserModel, error)
 	GetUserByFirebaseUID(UID string) (*UserModel, error)
 	GetUserByUID(UID string) (*UserModel, error)
@@ -48,6 +52,16 @@ type UserRepositoryPayloadCreateUser struct {
 	Name         string `db:"name" json:"name"`
 	Phone        string `db:"phone" json:"phone"`
 	ProfileImage string `db:"profile_image" json:"profile_image"`
+	IsAdmin      bool   `json:"is_admin"`
+
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+}
+
+type UserRepositoryPayloadCreateAdmin struct {
+	UID    string `db:"uid" json:"uid"`
+	Email  string `db:"email" json:"email"`
+	UserID int    `db:"user_id" json:"user_id"`
 
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`

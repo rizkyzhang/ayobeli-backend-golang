@@ -67,13 +67,13 @@ func TestAuthUsecase(t *testing.T) {
 }
 
 func (s *AuthUsecaseSuite) TestAuthUsecase() {
-	s.Run("Signup should be successful", func() {
+	s.Run("Signup as admin should be successful", func() {
 		authUtilMock := &mocks.AuthUtilMock{}
 		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
 		expectedFirebaseUID := gofakeit.UUID()
 		authUtilMock.CreateUserReturns(expectedFirebaseUID, nil)
 
-		err := uc.SignUp(s.email, s.password)
+		err := uc.SignUp(s.email, s.password, true)
 		s.NoError(err)
 
 		// Validate created user
@@ -81,6 +81,33 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 		s.NoError(err)
 		s.NotNil(user)
 		s.Equal(s.email, user.Email)
+		s.Equal(expectedFirebaseUID, user.FirebaseUID)
+
+		admin, err := s.userRepo.GetAdminByUserID(user.ID)
+		s.NoError(err)
+		s.Equal(user.ID, admin.UserID)
+
+		// Validate created cart
+		cart, err := s.cartRepo.GetCartByUserID(user.ID)
+		s.NoError(err)
+		s.NotNil(cart)
+	})
+
+	s.Run("Signup as non-admin should be successful", func() {
+		authUtilMock := &mocks.AuthUtilMock{}
+		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
+		expectedFirebaseUID := gofakeit.UUID()
+		authUtilMock.CreateUserReturns(expectedFirebaseUID, nil)
+
+		email := gofakeit.Email()
+		err := uc.SignUp(email, s.password, false)
+		s.NoError(err)
+
+		// Validate created user
+		user, err := s.userRepo.GetUserByEmail(email)
+		s.NoError(err)
+		s.NotNil(user)
+		s.Equal(email, user.Email)
 		s.Equal(expectedFirebaseUID, user.FirebaseUID)
 
 		// Validate created cart
@@ -93,7 +120,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 		authUtilMock := &mocks.AuthUtilMock{}
 		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
 
-		err := uc.SignUp(s.email, s.password)
+		err := uc.SignUp(s.email, s.password, false)
 		s.Error(err)
 	})
 

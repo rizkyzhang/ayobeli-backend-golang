@@ -15,9 +15,10 @@ import (
 
 func Setup(env *domain.Env, db *sqlx.DB, firebaseAuth *auth.Client, e *echo.Echo) {
 	authUtil := utils.NewAuthUtil(env, firebaseAuth)
-	authRepo := repository.NewAuthRepository(db)
-	authUsecase := usecase.NewAuthUsecase(env, authRepo, authUtil)
-	authMiddleware := middleware.NewAuthMiddleware(authUsecase, authUtil)
+	userRepo := repository.NewUserRepository(db)
+	authUsecase := usecase.NewAuthUsecase(env, userRepo, authUtil)
+	userUsecase := usecase.NewUserUsecase(env, userRepo)
+	authMiddleware := middleware.NewAuthMiddleware(userUsecase, authUtil)
 	validate := validator.New()
 
 	rootGroup := e.Group("/api")

@@ -9,15 +9,15 @@ import (
 	"github.com/rizkyzhang/ayobeli-backend-golang/internal/utils"
 )
 
-type baseAuthRepository struct {
+type baseUserRepository struct {
 	db *sqlx.DB
 }
 
-func NewAuthRepository(db *sqlx.DB) domain.AuthRepository {
-	return &baseAuthRepository{db: db}
+func NewUserRepository(db *sqlx.DB) domain.UserRepository {
+	return &baseUserRepository{db: db}
 }
 
-func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloadCreateUser) (int, error) {
+func (b *baseUserRepository) CreateUser(userPayload *domain.UserRepositoryPayloadCreateUser) (int, error) {
 	tx, err := b.db.Beginx()
 	if err != nil {
 		return 0, err
@@ -34,7 +34,6 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 	if err != nil {
 		return 0, err
 	}
-
 	var userID int
 	err = tx.Get(&userID, query, args...)
 	if err != nil {
@@ -42,6 +41,17 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 	}
 
 	metadata := utils.GenerateMetadata()
+	if userPayload.IsAdmin {
+		_, err := tx.Exec(`
+		INSERT INTO admins (uid, email, user_id, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5);
+		`, metadata.UID(), userPayload.Email, userID, metadata.CreatedAt, metadata.UpdatedAt)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	metadata = utils.GenerateMetadata()
 	cart := domain.CartModel{
 		UID:              metadata.UID(),
 		Quantity:         0,
@@ -53,7 +63,6 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 		CreatedAt:        metadata.CreatedAt,
 		UpdatedAt:        metadata.UpdatedAt,
 	}
-
 	_, err = tx.NamedExec(`
 	INSERT INTO carts (uid, quantity, total_price, total_price_value, total_weight, total_weight_value, user_id, created_at, updated_at)
 	VALUES (:uid, :quantity, :total_price, :total_price_value, :total_weight, :total_weight_value, :user_id, :created_at, :updated_at)
@@ -70,7 +79,19 @@ func (b *baseAuthRepository) CreateUser(userPayload *domain.AuthRepositoryPayloa
 	return userID, nil
 }
 
-func (b *baseAuthRepository) GetUserByEmail(email string) (*domain.UserModel, error) {
+func (b *baseUserRepository) CreateAdmin(adminPayload *domain.UserRepositoryPayloadCreateAdmin) error {
+	_, err := b.db.Exec(`
+		INSERT INTO admins (uid, email, user_id, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5);
+		`, adminPayload.UID, adminPayload.Email, adminPayload.UserID, adminPayload.CreatedAt, adminPayload.UpdatedAt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (b *baseUserRepository) GetUserByEmail(email string) (*domain.UserModel, error) {
 	var user domain.UserModel
 
 	err := b.db.Get(&user, "SELECT * FROM users WHERE email = $1;", email)
@@ -85,7 +106,7 @@ func (b *baseAuthRepository) GetUserByEmail(email string) (*domain.UserModel, er
 	return &user, nil
 }
 
-func (b *baseAuthRepository) GetUserByFirebaseUID(UID string) (*domain.UserModel, error) {
+func (b *baseUserRepository) GetUserByFirebaseUID(UID string) (*domain.UserModel, error) {
 	var user domain.UserModel
 
 	err := b.db.Get(&user, "SELECT * FROM users WHERE firebase_uid = $1;", UID)
@@ -100,7 +121,7 @@ func (b *baseAuthRepository) GetUserByFirebaseUID(UID string) (*domain.UserModel
 	return &user, nil
 }
 
-func (b *baseAuthRepository) GetUserByUID(UID string) (*domain.UserModel, error) {
+func (b *baseUserRepository) GetUserByUID(UID string) (*domain.UserModel, error) {
 	var user domain.UserModel
 
 	err := b.db.Get(&user, "SELECT * FROM users WHERE uid = $1;", UID)
@@ -115,7 +136,7 @@ func (b *baseAuthRepository) GetUserByUID(UID string) (*domain.UserModel, error)
 	return &user, nil
 }
 
-func (b *baseAuthRepository) GetAdminByUserID(userID int) (*domain.AdminModel, error) {
+func (b *baseUserRepository) GetAdminByUserID(userID int) (*domain.AdminModel, error) {
 	var admin domain.AdminModel
 
 	err := b.db.Get(&admin, "SELECT * FROM admins WHERE user_id = $1;", userID)

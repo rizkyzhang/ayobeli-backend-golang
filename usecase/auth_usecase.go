@@ -9,20 +9,20 @@ import (
 
 type baseAuthUsecase struct {
 	env            *domain.Env
-	authRepository domain.AuthRepository
+	userRepository domain.UserRepository
 	authUtil       domain.AuthUtil
 }
 
-func NewAuthUsecase(env *domain.Env, authRepository domain.AuthRepository, authUtil domain.AuthUtil) domain.AuthUsecase {
+func NewAuthUsecase(env *domain.Env, userRepository domain.UserRepository, authUtil domain.AuthUtil) domain.AuthUsecase {
 	return &baseAuthUsecase{
 		env:            env,
-		authRepository: authRepository,
+		userRepository: userRepository,
 		authUtil:       authUtil,
 	}
 }
 
-func (b *baseAuthUsecase) SignUp(email, password string) error {
-	user, err := b.authRepository.GetUserByEmail(email)
+func (b *baseAuthUsecase) SignUp(email, password string, isAdmin bool) error {
+	user, err := b.userRepository.GetUserByEmail(email)
 	if user != nil {
 		return errors.New("user already exist")
 	}
@@ -36,14 +36,15 @@ func (b *baseAuthUsecase) SignUp(email, password string) error {
 	}
 
 	metadata := utils.GenerateMetadata()
-	userPayload := &domain.AuthRepositoryPayloadCreateUser{
+	userPayload := &domain.UserRepositoryPayloadCreateUser{
 		UID:         metadata.UID(),
 		FirebaseUID: firebaseUID,
 		Email:       email,
+		IsAdmin:     isAdmin,
 		CreatedAt:   metadata.CreatedAt,
 		UpdatedAt:   metadata.UpdatedAt,
 	}
-	_, err = b.authRepository.CreateUser(userPayload)
+	_, err = b.userRepository.CreateUser(userPayload)
 	if err != nil {
 		return err
 	}
@@ -52,7 +53,7 @@ func (b *baseAuthUsecase) SignUp(email, password string) error {
 }
 
 func (b *baseAuthUsecase) GetAccessToken(email, password string) (string, error) {
-	user, err := b.authRepository.GetUserByEmail(email)
+	user, err := b.userRepository.GetUserByEmail(email)
 	if user == nil {
 		return "", errors.New("user not found")
 	}
@@ -69,31 +70,4 @@ func (b *baseAuthUsecase) GetAccessToken(email, password string) (string, error)
 	}
 
 	return accessToken, nil
-}
-
-func (b *baseAuthUsecase) GetUserByFirebaseUID(UID string) (*domain.UserModel, error) {
-	user, err := b.authRepository.GetUserByFirebaseUID(UID)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
-func (b *baseAuthUsecase) GetUserByUID(UID string) (*domain.UserModel, error) {
-	user, err := b.authRepository.GetUserByUID(UID)
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
-func (b *baseAuthUsecase) GetAdminByUserID(userID int) (*domain.AdminModel, error) {
-	admin, err := b.authRepository.GetAdminByUserID(userID)
-	if err != nil {
-		return nil, err
-	}
-
-	return admin, nil
 }

@@ -31,7 +31,7 @@ func main() {
 	db := app.DB
 	defer app.CloseDBConnection()
 	firebaseAuth := app.FirebaseAuth
-	logger := utils.NewLoggerUtil(env)
+	loggerUtil := utils.NewLoggerUtil(env)
 	docs.SwaggerInfo.Host = env.Host
 
 	e := echo.New()
@@ -40,10 +40,10 @@ func main() {
 		LogError:      true,
 		LogMethod:     true,
 		LogStatus:     true,
-		LogValuesFunc: logger.EchoMiddlewareFunc(),
+		LogValuesFunc: loggerUtil.EchoMiddlewareFunc(),
 	}))
 
-	route.Setup(env, db, firebaseAuth, e)
+	route.Setup(env, loggerUtil, db, firebaseAuth, e)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 

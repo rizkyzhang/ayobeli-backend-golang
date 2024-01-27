@@ -10,15 +10,17 @@ import (
 )
 
 type baseAuthController struct {
-	authUsecase domain.AuthUsecase
 	env         *domain.Env
+	loggerUtil  domain.LoggerUtil
+	authUsecase domain.AuthUsecase
 	validate    *validator.Validate
 }
 
-func NewAuthController(authUsecase domain.AuthUsecase, env *domain.Env, validate *validator.Validate) domain.AuthController {
+func NewAuthController(env *domain.Env, loggerUtil domain.LoggerUtil, authUsecase domain.AuthUsecase, validate *validator.Validate) domain.AuthController {
 	return &baseAuthController{
-		authUsecase: authUsecase,
 		env:         env,
+		loggerUtil:  loggerUtil,
+		authUsecase: authUsecase,
 		validate:    validate,
 	}
 }
@@ -85,7 +87,7 @@ func (b *baseAuthController) GetAccessToken(c echo.Context) error {
 			return response_util.FromValidationErrors(validationErrors).WithEcho(c)
 		}
 	}
-
+	
 	accessToken, err := b.authUsecase.GetAccessToken(payload.Email, payload.Password)
 	if err != nil {
 		if err.Error() == "user not found" {

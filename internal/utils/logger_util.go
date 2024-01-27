@@ -15,9 +15,12 @@ type loggerUtil struct {
 func NewLoggerUtil(env *domain.Env) domain.LoggerUtil {
 	logger := logrus.New()
 	if env.AppEnv != "prod" {
-		logger.SetFormatter(&logrus.TextFormatter{})
+		logger.SetFormatter(&logrus.TextFormatter{FullTimestamp: true, TimestampFormat: "2006-01-02 15:04:05"})
+		logger.SetLevel(logrus.DebugLevel)
 	} else {
 		logger.SetFormatter(&logrus.JSONFormatter{})
+		logger.SetLevel(logrus.InfoLevel)
+
 	}
 
 	return &loggerUtil{env: env, logger: logger}

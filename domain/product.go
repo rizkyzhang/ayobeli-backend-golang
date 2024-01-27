@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -83,11 +84,11 @@ type ProductControllerResponseListProducts struct {
 
 // Usecase
 type ProductUsecase interface {
-	Create(payload *ProductUsecasePayloadCreateProduct) (string, error)
-	List(limit int, encryptedCursor, direction string) (*ProductControllerResponseListProducts, error)
-	GetByUID(UID string) (*ProductControllerResponseGetProductByUID, error)
-	UpdateByUID(UID string, payload *ProductUsecasePayloadUpdateProduct) error
-	DeleteByUID(UID string) error
+	Create(ctx context.Context, payload *ProductUsecasePayloadCreateProduct) (string, error)
+	List(ctx context.Context, limit int, encryptedCursor, direction string) (*ProductControllerResponseListProducts, error)
+	GetByUID(ctx context.Context, UID string) (*ProductControllerResponseGetProductByUID, error)
+	UpdateByUID(ctx context.Context, UID string, payload *ProductUsecasePayloadUpdateProduct) error
+	DeleteByUID(ctx context.Context, UID string) error
 }
 
 type ProductUsecasePayloadCreateProduct struct {

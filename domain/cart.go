@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -60,15 +61,15 @@ type ControllerResponsePropertyCartItem struct {
 // Usecase
 type CartUsecase interface {
 	// Cart
-	GetCartByUserID(userID int) (*CartControllerResponseGetCart, error)
-	GetCartByUserIDMiddleware(userID int) (*CartModel, error)
+	GetCartByUserID(ctx context.Context, userID int) (*CartControllerResponseGetCart, error)
+	GetCartByUserIDMiddleware(ctx context.Context, userID int) (*CartModel, error)
 
 	// Cart item
-	CreateCartItem(payload *CartUsecasePayloadCreateCartItem) (string, error)
-	GetCartItemByUID(UID string) (*CartItemModel, error)
-	GetCartItemByProductID(productID int) (*CartItemModel, error)
-	UpdateCartItem(payload *CartUsecasePayloadUpdateCartItem) error
-	DeleteCartItemByUID(payload *CartUsecasePayloadDeleteCartItem) error
+	CreateCartItem(ctx context.Context, payload *CartUsecasePayloadCreateCartItem) (string, error)
+	GetCartItemByUID(ctx context.Context, UID string) (*CartItemModel, error)
+	GetCartItemByProductID(ctx context.Context, productID int) (*CartItemModel, error)
+	UpdateCartItem(ctx context.Context, payload *CartUsecasePayloadUpdateCartItem) error
+	DeleteCartItemByUID(ctx context.Context, payload *CartUsecasePayloadDeleteCartItem) error
 }
 
 type CartUsecasePayloadCreateCartItem struct {

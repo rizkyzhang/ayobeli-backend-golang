@@ -2,17 +2,19 @@
 package mocks
 
 import (
+	"context"
 	"sync"
 
 	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
 type AuthUsecaseMock struct {
-	GetAccessTokenStub        func(string, string) (string, error)
+	GetAccessTokenStub        func(context.Context, string, string) (string, error)
 	getAccessTokenMutex       sync.RWMutex
 	getAccessTokenArgsForCall []struct {
-		arg1 string
+		arg1 context.Context
 		arg2 string
+		arg3 string
 	}
 	getAccessTokenReturns struct {
 		result1 string
@@ -22,12 +24,13 @@ type AuthUsecaseMock struct {
 		result1 string
 		result2 error
 	}
-	SignUpStub        func(string, string, bool) error
+	SignUpStub        func(context.Context, string, string, bool) error
 	signUpMutex       sync.RWMutex
 	signUpArgsForCall []struct {
-		arg1 string
+		arg1 context.Context
 		arg2 string
-		arg3 bool
+		arg3 string
+		arg4 bool
 	}
 	signUpReturns struct {
 		result1 error
@@ -39,19 +42,20 @@ type AuthUsecaseMock struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *AuthUsecaseMock) GetAccessToken(arg1 string, arg2 string) (string, error) {
+func (fake *AuthUsecaseMock) GetAccessToken(arg1 context.Context, arg2 string, arg3 string) (string, error) {
 	fake.getAccessTokenMutex.Lock()
 	ret, specificReturn := fake.getAccessTokenReturnsOnCall[len(fake.getAccessTokenArgsForCall)]
 	fake.getAccessTokenArgsForCall = append(fake.getAccessTokenArgsForCall, struct {
-		arg1 string
+		arg1 context.Context
 		arg2 string
-	}{arg1, arg2})
+		arg3 string
+	}{arg1, arg2, arg3})
 	stub := fake.GetAccessTokenStub
 	fakeReturns := fake.getAccessTokenReturns
-	fake.recordInvocation("GetAccessToken", []interface{}{arg1, arg2})
+	fake.recordInvocation("GetAccessToken", []interface{}{arg1, arg2, arg3})
 	fake.getAccessTokenMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -65,17 +69,17 @@ func (fake *AuthUsecaseMock) GetAccessTokenCallCount() int {
 	return len(fake.getAccessTokenArgsForCall)
 }
 
-func (fake *AuthUsecaseMock) GetAccessTokenCalls(stub func(string, string) (string, error)) {
+func (fake *AuthUsecaseMock) GetAccessTokenCalls(stub func(context.Context, string, string) (string, error)) {
 	fake.getAccessTokenMutex.Lock()
 	defer fake.getAccessTokenMutex.Unlock()
 	fake.GetAccessTokenStub = stub
 }
 
-func (fake *AuthUsecaseMock) GetAccessTokenArgsForCall(i int) (string, string) {
+func (fake *AuthUsecaseMock) GetAccessTokenArgsForCall(i int) (context.Context, string, string) {
 	fake.getAccessTokenMutex.RLock()
 	defer fake.getAccessTokenMutex.RUnlock()
 	argsForCall := fake.getAccessTokenArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *AuthUsecaseMock) GetAccessTokenReturns(result1 string, result2 error) {
@@ -104,20 +108,21 @@ func (fake *AuthUsecaseMock) GetAccessTokenReturnsOnCall(i int, result1 string, 
 	}{result1, result2}
 }
 
-func (fake *AuthUsecaseMock) SignUp(arg1 string, arg2 string, arg3 bool) error {
+func (fake *AuthUsecaseMock) SignUp(arg1 context.Context, arg2 string, arg3 string, arg4 bool) error {
 	fake.signUpMutex.Lock()
 	ret, specificReturn := fake.signUpReturnsOnCall[len(fake.signUpArgsForCall)]
 	fake.signUpArgsForCall = append(fake.signUpArgsForCall, struct {
-		arg1 string
+		arg1 context.Context
 		arg2 string
-		arg3 bool
-	}{arg1, arg2, arg3})
+		arg3 string
+		arg4 bool
+	}{arg1, arg2, arg3, arg4})
 	stub := fake.SignUpStub
 	fakeReturns := fake.signUpReturns
-	fake.recordInvocation("SignUp", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("SignUp", []interface{}{arg1, arg2, arg3, arg4})
 	fake.signUpMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
@@ -131,17 +136,17 @@ func (fake *AuthUsecaseMock) SignUpCallCount() int {
 	return len(fake.signUpArgsForCall)
 }
 
-func (fake *AuthUsecaseMock) SignUpCalls(stub func(string, string, bool) error) {
+func (fake *AuthUsecaseMock) SignUpCalls(stub func(context.Context, string, string, bool) error) {
 	fake.signUpMutex.Lock()
 	defer fake.signUpMutex.Unlock()
 	fake.SignUpStub = stub
 }
 
-func (fake *AuthUsecaseMock) SignUpArgsForCall(i int) (string, string, bool) {
+func (fake *AuthUsecaseMock) SignUpArgsForCall(i int) (context.Context, string, string, bool) {
 	fake.signUpMutex.RLock()
 	defer fake.signUpMutex.RUnlock()
 	argsForCall := fake.signUpArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *AuthUsecaseMock) SignUpReturns(result1 error) {

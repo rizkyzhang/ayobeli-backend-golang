@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"context"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -30,6 +32,6 @@ type AuthControllerPayloadGetAccessToken struct {
 
 // Usecase
 type AuthUsecase interface {
-	SignUp(email, password string, isAdmin bool) error
-	GetAccessToken(email, password string) (string, error)
+	SignUp(ctx context.Context, email, password string, isAdmin bool) error
+	GetAccessToken(ctx context.Context, email, password string) (string, error)
 }

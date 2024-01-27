@@ -1,15 +1,18 @@
 package domain
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o mocks/user_usecase_mock.go --fake-name UserUsecaseMock . UserUsecase
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o mocks/user_repository_mock.go --fake-name UserRepositoryMock . UserRepository
 
 // Usecase
 type UserUsecase interface {
-	GetUserByFirebaseUID(UID string) (*UserModel, error)
-	GetUserByUID(UID string) (*UserModel, error)
-	GetAdminByUserID(UserID int) (*AdminModel, error)
+	GetUserByFirebaseUID(ctx context.Context, UID string) (*UserModel, error)
+	GetUserByUID(ctx context.Context, UID string) (*UserModel, error)
+	GetAdminByUserID(ctx context.Context, UserID int) (*AdminModel, error)
 }
 
 // Repository

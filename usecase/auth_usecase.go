@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 
 	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
@@ -21,7 +22,7 @@ func NewAuthUsecase(env *domain.Env, userRepository domain.UserRepository, authU
 	}
 }
 
-func (b *baseAuthUsecase) SignUp(email, password string, isAdmin bool) error {
+func (b *baseAuthUsecase) SignUp(ctx context.Context, email, password string, isAdmin bool) error {
 	user, err := b.userRepository.GetUserByEmail(email)
 	if user != nil {
 		return errors.New("user already exist")
@@ -52,7 +53,7 @@ func (b *baseAuthUsecase) SignUp(email, password string, isAdmin bool) error {
 	return nil
 }
 
-func (b *baseAuthUsecase) GetAccessToken(email, password string) (string, error) {
+func (b *baseAuthUsecase) GetAccessToken(ctx context.Context, email, password string) (string, error) {
 	user, err := b.userRepository.GetUserByEmail(email)
 	if user == nil {
 		return "", errors.New("user not found")

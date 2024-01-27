@@ -50,7 +50,7 @@ func (b *baseAuthController) SignUp(c echo.Context) error {
 		}
 	}
 
-	err = b.authUsecase.SignUp(payload.Email, payload.Password, payload.IsAdmin)
+	err = b.authUsecase.SignUp(c.Request().Context(), payload.Email, payload.Password, payload.IsAdmin)
 	if err != nil {
 		if err.Error() == "user already exist" {
 			return response_util.FromBadRequestError(err).WithEcho(c)
@@ -87,8 +87,8 @@ func (b *baseAuthController) GetAccessToken(c echo.Context) error {
 			return response_util.FromValidationErrors(validationErrors).WithEcho(c)
 		}
 	}
-	
-	accessToken, err := b.authUsecase.GetAccessToken(payload.Email, payload.Password)
+
+	accessToken, err := b.authUsecase.GetAccessToken(c.Request().Context(), payload.Email, payload.Password)
 	if err != nil {
 		if err.Error() == "user not found" {
 			return response_util.FromNotFoundError(err).WithEcho(c)

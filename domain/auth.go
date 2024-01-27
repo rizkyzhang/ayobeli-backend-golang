@@ -18,14 +18,14 @@ type AuthController interface {
 }
 
 type AuthControllerPayloadSignUp struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	IsAdmin  bool   `json:"is_admin"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
+	IsAdmin  bool   `json:"is_admin" validate:"required"`
 }
 
 type AuthControllerPayloadGetAccessToken struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email"  validate:"required,email"`
+	Password string `json:"password"  validate:"required,min=8"`
 }
 
 // Usecase

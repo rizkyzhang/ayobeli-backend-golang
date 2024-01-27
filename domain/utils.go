@@ -10,7 +10,8 @@ import (
 
 type Env struct {
 	AppEnv                    string `mapstructure:"APP_ENV"`
-	ServerAddress             string `mapstructure:"SERVER_ADDRESS"`
+	Host                      string `mapstructure:"HOST"`
+	Port                      string `mapstructure:"PORT"`
 	FirebaseCredentialPath    string `mapstructure:"FIREBASE_CREDENTIAL_PATH"`
 	FirebaseVerifyPasswordURL string `mapstructure:"FIREBASE_VERIFY_PASSWORD_URL"`
 	ContextTimeout            int    `mapstructure:"CONTEXT_TIMEOUT"`

@@ -13,7 +13,7 @@ import (
 	"github.com/rizkyzhang/ayobeli-backend-golang/usecase"
 )
 
-func Setup(env *domain.Env, db *sqlx.DB, firebaseAuth *auth.Client, e *echo.Echo) {
+func Setup(env *domain.Env, loggerUtil domain.LoggerUtil, db *sqlx.DB, firebaseAuth *auth.Client, e *echo.Echo) {
 	authUtil := utils.NewAuthUtil(env, firebaseAuth)
 	userRepo := repository.NewUserRepository(db)
 	authUsecase := usecase.NewAuthUsecase(env, userRepo, authUtil)
@@ -23,5 +23,5 @@ func Setup(env *domain.Env, db *sqlx.DB, firebaseAuth *auth.Client, e *echo.Echo
 
 	rootGroup := e.Group("/api")
 
-	NewAuthRouter(env, rootGroup, authUsecase, authMiddleware, validate)
+	NewAuthRouter(env, loggerUtil, rootGroup, authUsecase, authMiddleware, validate)
 }

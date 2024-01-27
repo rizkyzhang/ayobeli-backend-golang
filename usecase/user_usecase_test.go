@@ -100,21 +100,21 @@ func TestUserUsecase(t *testing.T) {
 func (s *UserUsecaseSuite) TestUserUsecase() {
 	s.Run("Get user by firebase uid should be successful", func() {
 		uc := usecase.NewUserUsecase(s.env, s.userRepo)
-		user, err := uc.GetUserByFirebaseUID(s.user.FirebaseUID)
+		user, err := uc.GetUserByFirebaseUID(s.ctx, s.user.FirebaseUID)
 		s.NoError(err)
 		s.Equal(s.user, user)
 	})
 
 	s.Run("Get user by uid should be successful", func() {
 		uc := usecase.NewUserUsecase(s.env, s.userRepo)
-		user, err := uc.GetUserByUID(s.user.UID)
+		user, err := uc.GetUserByUID(s.ctx, s.user.UID)
 		s.NoError(err)
 		s.Equal(s.user, user)
 	})
 
 	s.Run("Get admin by user id should be successful", func() {
 		uc := usecase.NewUserUsecase(s.env, s.userRepo)
-		admin, err := uc.GetAdminByUserID(s.user.ID)
+		admin, err := uc.GetAdminByUserID(s.ctx, s.user.ID)
 		s.NoError(err)
 		s.Equal(s.user.ID, admin.UserID)
 	})

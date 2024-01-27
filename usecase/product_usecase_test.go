@@ -124,7 +124,7 @@ func (s *ProductUsecaseSuite) TestCreateUpdateProductUsecase() {
 
 	s.Run("Create product without discount", func() {
 		uc := usecase.NewProductUsecase(s.repo, s.aesEncryptUtil, s.productUtil)
-		UID, err := uc.Create(payload)
+		UID, err := uc.Create(s.ctx, payload)
 		s.NoError(err)
 		createdProductUID = UID
 
@@ -151,7 +151,7 @@ func (s *ProductUsecaseSuite) TestCreateUpdateProductUsecase() {
 		payload.SKU = "TEST321"
 
 		uc := usecase.NewProductUsecase(s.repo, s.aesEncryptUtil, s.productUtil)
-		UID, err := uc.Create(payload)
+		UID, err := uc.Create(s.ctx, payload)
 		s.NoError(err)
 		createdProductUID = UID
 
@@ -185,7 +185,7 @@ func (s *ProductUsecaseSuite) TestCreateUpdateProductUsecase() {
 		}
 
 		uc := usecase.NewProductUsecase(s.repo, s.aesEncryptUtil, s.productUtil)
-		err := uc.UpdateByUID(createdProductUID, payload)
+		err := uc.UpdateByUID(s.ctx, createdProductUID, payload)
 		s.NoError(err)
 
 		product, err := s.repo.GetByUID(createdProductUID)
@@ -210,7 +210,7 @@ func (s *ProductUsecaseSuite) TestReadDeleteProductUsecase() {
 	s.Run("List products pagination for first page", func() {
 		uc := usecase.NewProductUsecase(s.repo, s.aesEncryptUtil, s.productUtil)
 
-		paginationRes, err := uc.List(5, "", "")
+		paginationRes, err := uc.List(s.ctx, 5, "", "")
 		s.NoError(err)
 		s.True(paginationRes.IsFirstPage)
 		s.Equal(5, paginationRes.Limit)
@@ -229,7 +229,7 @@ func (s *ProductUsecaseSuite) TestReadDeleteProductUsecase() {
 
 		cursor, err := s.aesEncryptUtil.Encrypt("5")
 		s.NoError(err)
-		paginationRes, err := uc.List(5, cursor, "next")
+		paginationRes, err := uc.List(s.ctx, 5, cursor, "next")
 		s.NoError(err)
 		s.False(paginationRes.IsFirstPage)
 		s.Equal(5, paginationRes.Limit)
@@ -248,7 +248,7 @@ func (s *ProductUsecaseSuite) TestReadDeleteProductUsecase() {
 
 		cursor, err := s.aesEncryptUtil.Encrypt("10")
 		s.NoError(err)
-		paginationRes, err := uc.List(5, cursor, "next")
+		paginationRes, err := uc.List(s.ctx, 5, cursor, "next")
 		s.NoError(err)
 		s.False(paginationRes.IsFirstPage)
 		s.Equal(5, paginationRes.Limit)
@@ -264,7 +264,7 @@ func (s *ProductUsecaseSuite) TestReadDeleteProductUsecase() {
 
 		cursor, err := s.aesEncryptUtil.Encrypt("11")
 		s.NoError(err)
-		paginationRes, err := uc.List(5, cursor, "prev")
+		paginationRes, err := uc.List(s.ctx, 5, cursor, "prev")
 		s.NoError(err)
 		s.False(paginationRes.IsFirstPage)
 		s.Equal(5, paginationRes.Limit)
@@ -280,21 +280,21 @@ func (s *ProductUsecaseSuite) TestReadDeleteProductUsecase() {
 
 	s.Run("Get product", func() {
 		uc := usecase.NewProductUsecase(s.repo, s.aesEncryptUtil, s.productUtil)
-		product, err := uc.GetByUID(s.productUIDS[0])
+		product, err := uc.GetByUID(s.ctx, s.productUIDS[0])
 		s.NoError(err)
 		s.NotNil(product)
 	})
 
 	s.Run("Get product return nil if product not found", func() {
 		uc := usecase.NewProductUsecase(s.repo, s.aesEncryptUtil, s.productUtil)
-		product, err := uc.GetByUID("123")
+		product, err := uc.GetByUID(s.ctx, "123")
 		s.NoError(err)
 		s.Nil(product)
 	})
 
 	s.Run("Delete product", func() {
 		uc := usecase.NewProductUsecase(s.repo, s.aesEncryptUtil, s.productUtil)
-		err := uc.DeleteByUID(s.productUIDS[0])
+		err := uc.DeleteByUID(s.ctx, s.productUIDS[0])
 		s.NoError(err)
 
 		product, err := s.repo.GetByUID(s.productUIDS[0])

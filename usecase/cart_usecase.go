@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"log"
 
 	"github.com/jinzhu/copier"
@@ -17,7 +18,7 @@ func NewCartUsecase(cartRepository domain.CartRepository, cartUtil domain.CartUt
 	return &baseCartUsecase{cartRepository: cartRepository, cartUtil: cartUtil}
 }
 
-func (b *baseCartUsecase) GetCartByUserID(userID int) (*domain.CartControllerResponseGetCart, error) {
+func (b *baseCartUsecase) GetCartByUserID(ctx context.Context, userID int) (*domain.CartControllerResponseGetCart, error) {
 	var res domain.CartControllerResponseGetCart
 	cart, err := b.cartRepository.GetCartByUserID(userID)
 	if err != nil {
@@ -35,7 +36,7 @@ func (b *baseCartUsecase) GetCartByUserID(userID int) (*domain.CartControllerRes
 	return &res, nil
 }
 
-func (b *baseCartUsecase) GetCartByUserIDMiddleware(userID int) (*domain.CartModel, error) {
+func (b *baseCartUsecase) GetCartByUserIDMiddleware(ctx context.Context, userID int) (*domain.CartModel, error) {
 	cart, err := b.cartRepository.GetCartByUserID(userID)
 	if err != nil {
 		return nil, err
@@ -44,7 +45,7 @@ func (b *baseCartUsecase) GetCartByUserIDMiddleware(userID int) (*domain.CartMod
 	return cart, nil
 }
 
-func (b *baseCartUsecase) CreateCartItem(payload *domain.CartUsecasePayloadCreateCartItem) (string, error) {
+func (b *baseCartUsecase) CreateCartItem(ctx context.Context, payload *domain.CartUsecasePayloadCreateCartItem) (string, error) {
 	metadata := utils.GenerateMetadata()
 	calculatedCart, err := b.cartUtil.CalculateCreateCartItem(payload)
 	if err != nil {
@@ -95,7 +96,7 @@ func (b *baseCartUsecase) CreateCartItem(payload *domain.CartUsecasePayloadCreat
 	return UID, nil
 }
 
-func (b *baseCartUsecase) GetCartItemByUID(UID string) (*domain.CartItemModel, error) {
+func (b *baseCartUsecase) GetCartItemByUID(ctx context.Context, UID string) (*domain.CartItemModel, error) {
 	cartItem, err := b.cartRepository.GetCartItemByUID(UID)
 	if err != nil {
 		return nil, err
@@ -104,7 +105,7 @@ func (b *baseCartUsecase) GetCartItemByUID(UID string) (*domain.CartItemModel, e
 	return cartItem, nil
 }
 
-func (b *baseCartUsecase) GetCartItemByProductID(productID int) (*domain.CartItemModel, error) {
+func (b *baseCartUsecase) GetCartItemByProductID(ctx context.Context, productID int) (*domain.CartItemModel, error) {
 	cartItem, err := b.cartRepository.GetCartItemByProductID(productID)
 	if err != nil {
 		return nil, err
@@ -113,7 +114,7 @@ func (b *baseCartUsecase) GetCartItemByProductID(productID int) (*domain.CartIte
 	return cartItem, nil
 }
 
-func (b *baseCartUsecase) UpdateCartItem(payload *domain.CartUsecasePayloadUpdateCartItem) error {
+func (b *baseCartUsecase) UpdateCartItem(ctx context.Context, payload *domain.CartUsecasePayloadUpdateCartItem) error {
 	metadata := utils.GenerateMetadata()
 	calculatedCart, err := b.cartUtil.CalculateUpdateCartItem(payload)
 	if err != nil {
@@ -148,7 +149,7 @@ func (b *baseCartUsecase) UpdateCartItem(payload *domain.CartUsecasePayloadUpdat
 	return nil
 }
 
-func (b *baseCartUsecase) DeleteCartItemByUID(payload *domain.CartUsecasePayloadDeleteCartItem) error {
+func (b *baseCartUsecase) DeleteCartItemByUID(ctx context.Context, payload *domain.CartUsecasePayloadDeleteCartItem) error {
 	metadata := utils.GenerateMetadata()
 	calculatedCart, err := b.cartUtil.CalculateDeleteCartItem(payload)
 	if err != nil {

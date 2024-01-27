@@ -7,8 +7,8 @@ import (
 	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
-func NewAuthRouter(env *domain.Env, rootGroup *echo.Group, authUsecase domain.AuthUsecase, authMiddleware domain.AuthMiddleware, validate *validator.Validate) {
-	ct := controller.NewAuthController(authUsecase, env, validate)
+func NewAuthRouter(env *domain.Env, loggerUtil domain.LoggerUtil, rootGroup *echo.Group, authUsecase domain.AuthUsecase, authMiddleware domain.AuthMiddleware, validate *validator.Validate) {
+	ct := controller.NewAuthController(env, loggerUtil, authUsecase, validate)
 
 	publicGroup := rootGroup.Group("/v1/auth")
 	privateGroup := rootGroup.Group("/v1/auth")

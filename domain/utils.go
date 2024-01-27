@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -o mocks/auth_util_mock.go --fake-name AuthUtilMock . AuthUtil
@@ -53,6 +55,16 @@ type JWTUtil interface {
 	GenerateRefreshToken(userUID string) (string, time.Time, error)
 	ParseUserUID(tokenString string, isAccessToken bool) (string, error)
 	Refresh(refreshToken string) (string, time.Time, error)
+}
+
+type LoggerUtil interface {
+	Debugf(format string, args ...interface{})
+	Infoln(args ...interface{})
+	Infof(format string, args ...interface{})
+	Warnf(format string, args ...interface{})
+	Errorf(format string, args ...interface{})
+	Fatalf(format string, args ...interface{})
+	EchoMiddlewareFunc() func(c echo.Context, values middleware.RequestLoggerValues) error
 }
 
 type Metadata struct {

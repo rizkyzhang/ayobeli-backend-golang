@@ -149,7 +149,7 @@ func (s *CartUsecaseSuite) TestCartUsecase() {
 				Product:  product,
 				Quantity: gofakeit.IntRange(1, 10),
 			}
-			UID, err := uc.CreateCartItem(payload)
+			UID, err := uc.CreateCartItem(s.ctx, payload)
 			s.NoError(err)
 			s.cartItemUID = UID
 
@@ -196,7 +196,7 @@ func (s *CartUsecaseSuite) TestCartUsecase() {
 			CartItem: cartItem,
 			Quantity: 5,
 		}
-		err = uc.UpdateCartItem(payload)
+		err = uc.UpdateCartItem(s.ctx, payload)
 		s.NoError(err)
 
 		calculatedCart, err := s.cartUtil.CalculateUpdateCartItem(payload)
@@ -221,7 +221,7 @@ func (s *CartUsecaseSuite) TestCartUsecase() {
 	s.Run("Get cart by user id", func() {
 		uc := usecase.NewCartUsecase(s.cartRepo, s.cartUtil)
 
-		cart, err := uc.GetCartByUserID(s.userID)
+		cart, err := uc.GetCartByUserID(s.ctx, s.userID)
 		s.NoError(err)
 		s.NotNil(cart)
 	})
@@ -229,7 +229,7 @@ func (s *CartUsecaseSuite) TestCartUsecase() {
 	s.Run("Get cart by user id return nil given invalid user id", func() {
 		uc := usecase.NewCartUsecase(s.cartRepo, s.cartUtil)
 
-		cart, err := uc.GetCartByUserID(2)
+		cart, err := uc.GetCartByUserID(s.ctx, 2)
 		s.NoError(err)
 		s.Nil(cart)
 	})
@@ -237,7 +237,7 @@ func (s *CartUsecaseSuite) TestCartUsecase() {
 	s.Run("Get cart by user id middleware", func() {
 		uc := usecase.NewCartUsecase(s.cartRepo, s.cartUtil)
 
-		cart, err := uc.GetCartByUserIDMiddleware(s.userID)
+		cart, err := uc.GetCartByUserIDMiddleware(s.ctx, s.userID)
 		s.NoError(err)
 		s.Equal(s.userID, cart.UserID)
 	})
@@ -245,7 +245,7 @@ func (s *CartUsecaseSuite) TestCartUsecase() {
 	s.Run("Get cart by user id middleware return nil given invalid user id", func() {
 		uc := usecase.NewCartUsecase(s.cartRepo, s.cartUtil)
 
-		cart, err := uc.GetCartByUserIDMiddleware(2)
+		cart, err := uc.GetCartByUserIDMiddleware(s.ctx, 2)
 		s.NoError(err)
 		s.Nil(cart)
 	})
@@ -253,7 +253,7 @@ func (s *CartUsecaseSuite) TestCartUsecase() {
 	s.Run("Get cart item by uid", func() {
 		uc := usecase.NewCartUsecase(s.cartRepo, s.cartUtil)
 
-		cartItem, err := uc.GetCartItemByUID(s.cartItemUID)
+		cartItem, err := uc.GetCartItemByUID(s.ctx, s.cartItemUID)
 		s.NoError(err)
 		s.NotNil(cartItem)
 	})
@@ -261,7 +261,7 @@ func (s *CartUsecaseSuite) TestCartUsecase() {
 	s.Run("Get cart item by uid return nil given invalid uid", func() {
 		uc := usecase.NewCartUsecase(s.cartRepo, s.cartUtil)
 
-		cartItem, err := uc.GetCartItemByUID("invalid")
+		cartItem, err := uc.GetCartItemByUID(s.ctx, "invalid")
 		s.NoError(err)
 		s.Nil(cartItem)
 	})
@@ -272,7 +272,7 @@ func (s *CartUsecaseSuite) TestCartUsecase() {
 		product, err := s.productRepo.GetByUID(s.productUIDS[0])
 		s.NoError(err)
 
-		cartItem, err := uc.GetCartItemByProductID(product.ID)
+		cartItem, err := uc.GetCartItemByProductID(s.ctx, product.ID)
 		s.NoError(err)
 		s.NotNil(cartItem)
 	})
@@ -289,7 +289,7 @@ func (s *CartUsecaseSuite) TestCartUsecase() {
 			Cart:     cart,
 			CartItem: &cart.CartItems[0],
 		}
-		err = uc.DeleteCartItemByUID(payload)
+		err = uc.DeleteCartItemByUID(s.ctx, payload)
 		s.NoError(err)
 
 		calculatedCart, err := s.cartUtil.CalculateDeleteCartItem(payload)

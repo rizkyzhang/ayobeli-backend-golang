@@ -73,7 +73,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 		expectedFirebaseUID := gofakeit.UUID()
 		authUtilMock.CreateUserReturns(expectedFirebaseUID, nil)
 
-		err := uc.SignUp(s.email, s.password, true)
+		err := uc.SignUp(s.ctx, s.email, s.password, true)
 		s.NoError(err)
 
 		// Validate created user
@@ -100,7 +100,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 		authUtilMock.CreateUserReturns(expectedFirebaseUID, nil)
 
 		email := gofakeit.Email()
-		err := uc.SignUp(email, s.password, false)
+		err := uc.SignUp(s.ctx, email, s.password, false)
 		s.NoError(err)
 
 		// Validate created user
@@ -120,7 +120,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 		authUtilMock := &mocks.AuthUtilMock{}
 		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
 
-		err := uc.SignUp(s.email, s.password, false)
+		err := uc.SignUp(s.ctx, s.email, s.password, false)
 		s.Error(err)
 	})
 
@@ -130,7 +130,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 		expectedAccessToken := gofakeit.UUID()
 		authUtilMock.GetAccessTokenReturns(expectedAccessToken, nil)
 
-		accessToken, err := uc.GetAccessToken(s.email, s.password)
+		accessToken, err := uc.GetAccessToken(s.ctx, s.email, s.password)
 		s.NoError(err)
 		s.Equal(expectedAccessToken, accessToken)
 	})
@@ -139,7 +139,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 		authUtilMock := &mocks.AuthUtilMock{}
 		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
 
-		_, err := uc.GetAccessToken("notfound@email.com", s.password)
+		_, err := uc.GetAccessToken(s.ctx, "notfound@email.com", s.password)
 		s.Error(err)
 	})
 
@@ -148,7 +148,7 @@ func (s *AuthUsecaseSuite) TestAuthUsecase() {
 		authUtilMock.GetAccessTokenReturns("", nil)
 		uc := usecase.NewAuthUsecase(s.env, s.userRepo, authUtilMock)
 
-		_, err := uc.GetAccessToken(s.email, "invalid")
+		_, err := uc.GetAccessToken(s.ctx, s.email, "invalid")
 		s.Error(err)
 	})
 }

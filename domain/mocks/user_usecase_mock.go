@@ -2,16 +2,18 @@
 package mocks
 
 import (
+	"context"
 	"sync"
 
 	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
 type UserUsecaseMock struct {
-	GetAdminByUserIDStub        func(int) (*domain.AdminModel, error)
+	GetAdminByUserIDStub        func(context.Context, int) (*domain.AdminModel, error)
 	getAdminByUserIDMutex       sync.RWMutex
 	getAdminByUserIDArgsForCall []struct {
-		arg1 int
+		arg1 context.Context
+		arg2 int
 	}
 	getAdminByUserIDReturns struct {
 		result1 *domain.AdminModel
@@ -21,10 +23,11 @@ type UserUsecaseMock struct {
 		result1 *domain.AdminModel
 		result2 error
 	}
-	GetUserByFirebaseUIDStub        func(string) (*domain.UserModel, error)
+	GetUserByFirebaseUIDStub        func(context.Context, string) (*domain.UserModel, error)
 	getUserByFirebaseUIDMutex       sync.RWMutex
 	getUserByFirebaseUIDArgsForCall []struct {
-		arg1 string
+		arg1 context.Context
+		arg2 string
 	}
 	getUserByFirebaseUIDReturns struct {
 		result1 *domain.UserModel
@@ -34,10 +37,11 @@ type UserUsecaseMock struct {
 		result1 *domain.UserModel
 		result2 error
 	}
-	GetUserByUIDStub        func(string) (*domain.UserModel, error)
+	GetUserByUIDStub        func(context.Context, string) (*domain.UserModel, error)
 	getUserByUIDMutex       sync.RWMutex
 	getUserByUIDArgsForCall []struct {
-		arg1 string
+		arg1 context.Context
+		arg2 string
 	}
 	getUserByUIDReturns struct {
 		result1 *domain.UserModel
@@ -51,18 +55,19 @@ type UserUsecaseMock struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *UserUsecaseMock) GetAdminByUserID(arg1 int) (*domain.AdminModel, error) {
+func (fake *UserUsecaseMock) GetAdminByUserID(arg1 context.Context, arg2 int) (*domain.AdminModel, error) {
 	fake.getAdminByUserIDMutex.Lock()
 	ret, specificReturn := fake.getAdminByUserIDReturnsOnCall[len(fake.getAdminByUserIDArgsForCall)]
 	fake.getAdminByUserIDArgsForCall = append(fake.getAdminByUserIDArgsForCall, struct {
-		arg1 int
-	}{arg1})
+		arg1 context.Context
+		arg2 int
+	}{arg1, arg2})
 	stub := fake.GetAdminByUserIDStub
 	fakeReturns := fake.getAdminByUserIDReturns
-	fake.recordInvocation("GetAdminByUserID", []interface{}{arg1})
+	fake.recordInvocation("GetAdminByUserID", []interface{}{arg1, arg2})
 	fake.getAdminByUserIDMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -76,17 +81,17 @@ func (fake *UserUsecaseMock) GetAdminByUserIDCallCount() int {
 	return len(fake.getAdminByUserIDArgsForCall)
 }
 
-func (fake *UserUsecaseMock) GetAdminByUserIDCalls(stub func(int) (*domain.AdminModel, error)) {
+func (fake *UserUsecaseMock) GetAdminByUserIDCalls(stub func(context.Context, int) (*domain.AdminModel, error)) {
 	fake.getAdminByUserIDMutex.Lock()
 	defer fake.getAdminByUserIDMutex.Unlock()
 	fake.GetAdminByUserIDStub = stub
 }
 
-func (fake *UserUsecaseMock) GetAdminByUserIDArgsForCall(i int) int {
+func (fake *UserUsecaseMock) GetAdminByUserIDArgsForCall(i int) (context.Context, int) {
 	fake.getAdminByUserIDMutex.RLock()
 	defer fake.getAdminByUserIDMutex.RUnlock()
 	argsForCall := fake.getAdminByUserIDArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *UserUsecaseMock) GetAdminByUserIDReturns(result1 *domain.AdminModel, result2 error) {
@@ -115,18 +120,19 @@ func (fake *UserUsecaseMock) GetAdminByUserIDReturnsOnCall(i int, result1 *domai
 	}{result1, result2}
 }
 
-func (fake *UserUsecaseMock) GetUserByFirebaseUID(arg1 string) (*domain.UserModel, error) {
+func (fake *UserUsecaseMock) GetUserByFirebaseUID(arg1 context.Context, arg2 string) (*domain.UserModel, error) {
 	fake.getUserByFirebaseUIDMutex.Lock()
 	ret, specificReturn := fake.getUserByFirebaseUIDReturnsOnCall[len(fake.getUserByFirebaseUIDArgsForCall)]
 	fake.getUserByFirebaseUIDArgsForCall = append(fake.getUserByFirebaseUIDArgsForCall, struct {
-		arg1 string
-	}{arg1})
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
 	stub := fake.GetUserByFirebaseUIDStub
 	fakeReturns := fake.getUserByFirebaseUIDReturns
-	fake.recordInvocation("GetUserByFirebaseUID", []interface{}{arg1})
+	fake.recordInvocation("GetUserByFirebaseUID", []interface{}{arg1, arg2})
 	fake.getUserByFirebaseUIDMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -140,17 +146,17 @@ func (fake *UserUsecaseMock) GetUserByFirebaseUIDCallCount() int {
 	return len(fake.getUserByFirebaseUIDArgsForCall)
 }
 
-func (fake *UserUsecaseMock) GetUserByFirebaseUIDCalls(stub func(string) (*domain.UserModel, error)) {
+func (fake *UserUsecaseMock) GetUserByFirebaseUIDCalls(stub func(context.Context, string) (*domain.UserModel, error)) {
 	fake.getUserByFirebaseUIDMutex.Lock()
 	defer fake.getUserByFirebaseUIDMutex.Unlock()
 	fake.GetUserByFirebaseUIDStub = stub
 }
 
-func (fake *UserUsecaseMock) GetUserByFirebaseUIDArgsForCall(i int) string {
+func (fake *UserUsecaseMock) GetUserByFirebaseUIDArgsForCall(i int) (context.Context, string) {
 	fake.getUserByFirebaseUIDMutex.RLock()
 	defer fake.getUserByFirebaseUIDMutex.RUnlock()
 	argsForCall := fake.getUserByFirebaseUIDArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *UserUsecaseMock) GetUserByFirebaseUIDReturns(result1 *domain.UserModel, result2 error) {
@@ -179,18 +185,19 @@ func (fake *UserUsecaseMock) GetUserByFirebaseUIDReturnsOnCall(i int, result1 *d
 	}{result1, result2}
 }
 
-func (fake *UserUsecaseMock) GetUserByUID(arg1 string) (*domain.UserModel, error) {
+func (fake *UserUsecaseMock) GetUserByUID(arg1 context.Context, arg2 string) (*domain.UserModel, error) {
 	fake.getUserByUIDMutex.Lock()
 	ret, specificReturn := fake.getUserByUIDReturnsOnCall[len(fake.getUserByUIDArgsForCall)]
 	fake.getUserByUIDArgsForCall = append(fake.getUserByUIDArgsForCall, struct {
-		arg1 string
-	}{arg1})
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
 	stub := fake.GetUserByUIDStub
 	fakeReturns := fake.getUserByUIDReturns
-	fake.recordInvocation("GetUserByUID", []interface{}{arg1})
+	fake.recordInvocation("GetUserByUID", []interface{}{arg1, arg2})
 	fake.getUserByUIDMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -204,17 +211,17 @@ func (fake *UserUsecaseMock) GetUserByUIDCallCount() int {
 	return len(fake.getUserByUIDArgsForCall)
 }
 
-func (fake *UserUsecaseMock) GetUserByUIDCalls(stub func(string) (*domain.UserModel, error)) {
+func (fake *UserUsecaseMock) GetUserByUIDCalls(stub func(context.Context, string) (*domain.UserModel, error)) {
 	fake.getUserByUIDMutex.Lock()
 	defer fake.getUserByUIDMutex.Unlock()
 	fake.GetUserByUIDStub = stub
 }
 
-func (fake *UserUsecaseMock) GetUserByUIDArgsForCall(i int) string {
+func (fake *UserUsecaseMock) GetUserByUIDArgsForCall(i int) (context.Context, string) {
 	fake.getUserByUIDMutex.RLock()
 	defer fake.getUserByUIDMutex.RUnlock()
 	argsForCall := fake.getUserByUIDArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *UserUsecaseMock) GetUserByUIDReturns(result1 *domain.UserModel, result2 error) {

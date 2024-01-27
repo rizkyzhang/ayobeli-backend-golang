@@ -10,15 +10,17 @@ import (
 )
 
 type baseAuthController struct {
-	authUsecase domain.AuthUsecase
 	env         *domain.Env
+	loggerUtil  domain.LoggerUtil
+	authUsecase domain.AuthUsecase
 	validate    *validator.Validate
 }
 
-func NewAuthController(authUsecase domain.AuthUsecase, env *domain.Env, validate *validator.Validate) domain.AuthController {
+func NewAuthController(env *domain.Env, loggerUtil domain.LoggerUtil, authUsecase domain.AuthUsecase, validate *validator.Validate) domain.AuthController {
 	return &baseAuthController{
-		authUsecase: authUsecase,
 		env:         env,
+		loggerUtil:  loggerUtil,
+		authUsecase: authUsecase,
 		validate:    validate,
 	}
 }
@@ -48,7 +50,7 @@ func (b *baseAuthController) SignUp(c echo.Context) error {
 		}
 	}
 
-	err = b.authUsecase.SignUp(payload.Email, payload.Password, payload.IsAdmin)
+	err = b.authUsecase.SignUp(c.Request().Context(), payload.Email, payload.Password, payload.IsAdmin)
 	if err != nil {
 		if err.Error() == "user already exist" {
 			return response_util.FromBadRequestError(err).WithEcho(c)
@@ -86,7 +88,7 @@ func (b *baseAuthController) GetAccessToken(c echo.Context) error {
 		}
 	}
 
-	accessToken, err := b.authUsecase.GetAccessToken(payload.Email, payload.Password)
+	accessToken, err := b.authUsecase.GetAccessToken(c.Request().Context(), payload.Email, payload.Password)
 	if err != nil {
 		if err.Error() == "user not found" {
 			return response_util.FromNotFoundError(err).WithEcho(c)

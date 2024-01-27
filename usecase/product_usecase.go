@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"strconv"
 
 	"github.com/jinzhu/copier"
@@ -18,7 +19,7 @@ func NewProductUsecase(productRepository domain.ProductRepository, aesEncryptUti
 	return &baseProductUsecase{productRepository: productRepository, aesEncryptUtil: aesEncryptUtil, productUtil: productUtil}
 }
 
-func (b *baseProductUsecase) Create(payload *domain.ProductUsecasePayloadCreateProduct) (string, error) {
+func (b *baseProductUsecase) Create(ctx context.Context, payload *domain.ProductUsecasePayloadCreateProduct) (string, error) {
 	metadata := utils.GenerateMetadata()
 	computedPrice, err := b.productUtil.CalculatePrice(payload.BasePriceValue, payload.Discount)
 	if err != nil {
@@ -54,7 +55,7 @@ func (b *baseProductUsecase) Create(payload *domain.ProductUsecasePayloadCreateP
 	return UID, nil
 }
 
-func (b *baseProductUsecase) List(limit int, encryptedCursor, direction string) (*domain.ProductControllerResponseListProducts, error) {
+func (b *baseProductUsecase) List(ctx context.Context, limit int, encryptedCursor, direction string) (*domain.ProductControllerResponseListProducts, error) {
 	var paginationRes domain.ProductControllerResponseListProducts
 
 	var cursor int
@@ -118,7 +119,7 @@ func (b *baseProductUsecase) List(limit int, encryptedCursor, direction string) 
 	return &paginationRes, nil
 }
 
-func (b *baseProductUsecase) GetByUID(UID string) (*domain.ProductControllerResponseGetProductByUID, error) {
+func (b *baseProductUsecase) GetByUID(ctx context.Context, UID string) (*domain.ProductControllerResponseGetProductByUID, error) {
 	product, err := b.productRepository.GetByUID(UID)
 	if err != nil {
 		return nil, err
@@ -136,7 +137,7 @@ func (b *baseProductUsecase) GetByUID(UID string) (*domain.ProductControllerResp
 	return &res, nil
 }
 
-func (b *baseProductUsecase) UpdateByUID(UID string, payload *domain.ProductUsecasePayloadUpdateProduct) error {
+func (b *baseProductUsecase) UpdateByUID(ctx context.Context, UID string, payload *domain.ProductUsecasePayloadUpdateProduct) error {
 	metadata := utils.GenerateMetadata()
 	computedPrice, err := b.productUtil.CalculatePrice(payload.BasePriceValue, payload.Discount)
 	if err != nil {
@@ -171,7 +172,7 @@ func (b *baseProductUsecase) UpdateByUID(UID string, payload *domain.ProductUsec
 	return nil
 }
 
-func (b *baseProductUsecase) DeleteByUID(UID string) error {
+func (b *baseProductUsecase) DeleteByUID(ctx context.Context, UID string) error {
 	err := b.productRepository.DeleteByUID(UID)
 	if err != nil {
 		return err

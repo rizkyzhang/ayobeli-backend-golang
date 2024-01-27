@@ -35,7 +35,7 @@ func (s *AuthControllerSuite) SetupTest() {
 	env := utils.LoadConfig("../../.env")
 	validate := validator.New()
 	authUsecaseMock := &mocks.AuthUsecaseMock{}
-	ct := controller.NewAuthController(authUsecaseMock, env, validate)
+	ct := controller.NewAuthController(env, nil, authUsecaseMock, validate)
 
 	s.ct = ct
 	s.ucMock = authUsecaseMock

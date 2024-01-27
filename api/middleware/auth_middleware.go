@@ -34,7 +34,7 @@ func (b *baseAuthMiddleware) ValidateUser() echo.MiddlewareFunc {
 			if err != nil {
 				return response_util.FromForbiddenError(err).WithEcho(c)
 			}
-			user, err := b.userUsecase.GetUserByFirebaseUID(firebaseUID)
+			user, err := b.userUsecase.GetUserByFirebaseUID(c.Request().Context(), firebaseUID)
 			if user == nil {
 				return response_util.FromForbiddenError(errors.New("access denied")).WithEcho(c)
 			}
@@ -56,7 +56,7 @@ func (b *baseAuthMiddleware) ValidateAdmin() echo.MiddlewareFunc {
 				return response_util.FromForbiddenError(errors.New("access denied")).WithEcho(c)
 			}
 
-			admin, err := b.userUsecase.GetAdminByUserID(user.ID)
+			admin, err := b.userUsecase.GetAdminByUserID(c.Request().Context(), user.ID)
 			if admin == nil {
 				return response_util.FromForbiddenError(errors.New("access denied")).WithEcho(c)
 			}

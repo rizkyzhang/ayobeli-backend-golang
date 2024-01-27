@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/rizkyzhang/ayobeli-backend-golang/domain"
 )
 
@@ -16,7 +18,7 @@ func NewUserUsecase(env *domain.Env, userRepository domain.UserRepository) domai
 	}
 }
 
-func (b *baseUserUsecase) GetUserByFirebaseUID(UID string) (*domain.UserModel, error) {
+func (b *baseUserUsecase) GetUserByFirebaseUID(ctx context.Context, UID string) (*domain.UserModel, error) {
 	user, err := b.userRepository.GetUserByFirebaseUID(UID)
 	if err != nil {
 		return nil, err
@@ -25,7 +27,7 @@ func (b *baseUserUsecase) GetUserByFirebaseUID(UID string) (*domain.UserModel, e
 	return user, nil
 }
 
-func (b *baseUserUsecase) GetUserByUID(UID string) (*domain.UserModel, error) {
+func (b *baseUserUsecase) GetUserByUID(ctx context.Context, UID string) (*domain.UserModel, error) {
 	user, err := b.userRepository.GetUserByUID(UID)
 	if err != nil {
 		return nil, err
@@ -34,7 +36,7 @@ func (b *baseUserUsecase) GetUserByUID(UID string) (*domain.UserModel, error) {
 	return user, nil
 }
 
-func (b *baseUserUsecase) GetAdminByUserID(userID int) (*domain.AdminModel, error) {
+func (b *baseUserUsecase) GetAdminByUserID(ctx context.Context, userID int) (*domain.AdminModel, error) {
 	admin, err := b.userRepository.GetAdminByUserID(userID)
 	if err != nil {
 		return nil, err

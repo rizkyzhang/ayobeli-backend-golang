@@ -6,8 +6,24 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	route "github.com/rizkyzhang/ayobeli-backend-golang/api/route"
 	"github.com/rizkyzhang/ayobeli-backend-golang/bootstrap"
+	docs "github.com/rizkyzhang/ayobeli-backend-golang/docs"
 	"github.com/sirupsen/logrus"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
+
+//	@title			Ayobeli API
+//	@version		0.1
+//	@description	Yet another e-commerce API
+
+//	@license.name	MIT
+//	@license.url	https://opensource.org/license/MIT
+
+//	@BasePath	/api/v1
+
+//	@securityDefinitions.apikey	ApiKeyAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Firebase auth access token, get it from POST /auth/access-token
 
 func main() {
 	app := bootstrap.App()
@@ -15,6 +31,8 @@ func main() {
 	db := app.DB
 	firebaseAuth := app.FirebaseAuth
 	defer app.CloseDBConnection()
+
+	docs.SwaggerInfo.Host = env.Host
 
 	if env.AppEnv != "prod" {
 		logrus.SetFormatter(&logrus.TextFormatter{})
@@ -46,5 +64,7 @@ func main() {
 
 	route.Setup(env, db, firebaseAuth, e)
 
-	e.Logger.Fatal(e.Start(env.ServerAddress))
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
+	e.Logger.Fatal(e.Start(env.Port))
 }

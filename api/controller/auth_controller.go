@@ -23,19 +23,29 @@ func NewAuthController(authUsecase domain.AuthUsecase, env *domain.Env, validate
 	}
 }
 
+// SignUp godoc
+//
+//	@Summary	Create user
+//	@Tags		auth
+//	@Accept		json
+//	@Produce	json
+//	@Param		credential body	domain.AuthControllerPayloadSignUp true	"email and password"
+//	@Success	201
+//	@Failure	400	"validation error | user already exist"
+//	@Failure	500	"Internal Server Error"
+//	@Router		/auth/signup [post]
 func (b *baseAuthController) SignUp(c echo.Context) error {
 	var payload domain.AuthControllerPayloadSignUp
 	err := c.Bind(&payload)
 	if err != nil {
 		return response_util.FromBindingError(err).WithEcho(c)
 	}
-	err = b.validate.Var(payload.Email, "email")
+	err = b.validate.Struct(&payload)
 	if err != nil {
-		return response_util.FromBadRequestError(errors.New("invalid email")).WithEcho(c)
-	}
-	err = b.validate.Var(payload.Password, "min=8")
-	if err != nil {
-		return response_util.FromBadRequestError(errors.New("min password length is 8")).WithEcho(c)
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			return response_util.FromValidationErrors(validationErrors).WithEcho(c)
+		}
 	}
 
 	err = b.authUsecase.SignUp(payload.Email, payload.Password, payload.IsAdmin)
@@ -50,19 +60,30 @@ func (b *baseAuthController) SignUp(c echo.Context) error {
 	return response_util.FromCreated().WithEcho(c)
 }
 
+// GetAccessToken godoc
+//
+//	@Summary	Get access token
+//	@Tags		auth
+//	@Accept		json
+//	@Produce	json
+//	@Param		credential body domain.AuthControllerPayloadGetAccessToken	true "email and password"
+//	@Success	200
+//	@Failure	400	"validation error"
+//	@Failure	404	"user not found"
+//	@Failure	500	"Internal Server Error"
+//	@Router		/auth/access-token [post]
 func (b *baseAuthController) GetAccessToken(c echo.Context) error {
 	var payload domain.AuthControllerPayloadGetAccessToken
 	err := c.Bind(&payload)
 	if err != nil {
 		return response_util.FromBindingError(err).WithEcho(c)
 	}
-	err = b.validate.Var(payload.Email, "email")
+	err = b.validate.Struct(&payload)
 	if err != nil {
-		return response_util.FromBadRequestError(errors.New("invalid email")).WithEcho(c)
-	}
-	err = b.validate.Var(payload.Password, "min=8")
-	if err != nil {
-		return response_util.FromBadRequestError(errors.New("min password length is 8")).WithEcho(c)
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			return response_util.FromValidationErrors(validationErrors).WithEcho(c)
+		}
 	}
 
 	accessToken, err := b.authUsecase.GetAccessToken(payload.Email, payload.Password)

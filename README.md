@@ -5,6 +5,8 @@ An e-commerce API built with Golang and PostgreSQL.
 ## Todos
 
 - [x] Migrate to Firebase Auth
+- [x] Implement swagger docs
+- [ ] Logger util
 
 ## Contributing
 
